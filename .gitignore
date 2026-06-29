@@ -1,4 +1,4 @@
-﻿*.iml
+*.iml
 .gradle
 /local.properties
 /.idea
@@ -8,3 +8,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+**/build/
+**/.gradle/
+**/.idea/
