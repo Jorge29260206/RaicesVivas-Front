@@ -2,6 +2,7 @@ package com.example.raicesvivas.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -19,7 +20,15 @@ import com.example.raicesvivas.models.SesionUsuario
 import com.example.raicesvivas.theme.*
 
 @Composable
-fun PerfilScreen(sesion: SesionUsuario?, onVolver: () -> Unit, onCerrarSesion: () -> Unit) {
+fun PerfilScreen(
+    sesion: SesionUsuario?,
+    onVolver: () -> Unit,
+    onCerrarSesion: () -> Unit,
+    fotoUrl: String? = null,
+    subiendo: Boolean = false,
+    mensajeFoto: String = "",
+    onCambiarFoto: () -> Unit = {}
+) {
     BackHandler { onVolver() }
     Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
@@ -28,12 +37,33 @@ fun PerfilScreen(sesion: SesionUsuario?, onVolver: () -> Unit, onCerrarSesion: (
                 Spacer(Modifier.height(16.dp))
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(modifier = Modifier.size(100.dp).background(Verde, CircleShape), contentAlignment = Alignment.Center) {
-                            Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Box(
+                            modifier = Modifier.size(100.dp).clickable { onCambiarFoto() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize().background(Verde, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U",
+                                    fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Color.White
+                                )
+                            }
+                            Box(
+                                modifier = Modifier.align(Alignment.BottomEnd).size(28.dp).background(Terracota, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("📷", fontSize = 14.sp)
+                            }
                         }
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(8.dp))
+                        if (subiendo) CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Verde, strokeWidth = 2.dp)
+                        if (mensajeFoto.isNotEmpty()) Text(mensajeFoto, fontSize = 12.sp, color = if (mensajeFoto.contains("Error")) Terracota else Verde)
+                        Spacer(Modifier.height(8.dp))
                         Text(sesion?.nombreCompleto ?: "Usuario", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
                         Text("@${sesion?.nombreUsuario ?: ""}", fontSize = 14.sp, color = GrisSuave)
+                        Text("Toca la foto para cambiarla", fontSize = 11.sp, color = GrisSuave.copy(alpha = 0.7f))
                     }
                 }
                 Spacer(Modifier.height(24.dp))
