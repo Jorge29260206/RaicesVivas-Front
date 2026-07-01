@@ -13,6 +13,8 @@ kotlin {
 }
 
 dependencies {
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
+    implementation("io.coil-kt:coil-compose:2.6.0")
     implementation(projects.shared)
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.ui)

@@ -111,6 +111,19 @@ class RaicesRepository {
         }
     }
 
+        suspend fun actualizarFoto(usuarioId: Int, fotoUrl: String): Resultado<String> {
+        return try {
+            val respuesta = httpClient.put("${ApiConfig.BASE_URL}/usuarios/$usuarioId/foto") {
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("fotoUrl" to fotoUrl))
+            }.bodyAsText()
+            if (respuesta.contains("\"status\":\"ok\"")) Resultado.Exito("Foto actualizada")
+            else Resultado.Error(extraerMensaje(respuesta))
+        } catch (e: Exception) {
+            Resultado.Error("Sin conexion: ${e.message}")
+        }
+    }
+
     private fun extraerMensaje(json: String): String {
         return Regex("\"mensaje\":\"(.*?)\"").find(json)?.groupValues?.get(1) ?: "Error desconocido"
     }

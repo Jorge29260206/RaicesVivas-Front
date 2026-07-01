@@ -54,9 +54,9 @@ fun AprenderScreen(lengua: LenguaDto?, onNivelSeleccionado: (NivelDto) -> Unit, 
             }
             items(niveles) { nivel ->
                 val colores = listOf(Verde, Turquesa, Terracota)
-                val emojis = listOf("🌱", "🌿", "🌳")
+                val emojis = listOf("ðŸŒ±", "ðŸŒ¿", "ðŸŒ³")
                 val color = colores.getOrElse(nivel.orden - 1) { Verde }
-                val emoji = emojis.getOrElse(nivel.orden - 1) { "🌿" }
+                val emoji = emojis.getOrElse(nivel.orden - 1) { "ðŸŒ¿" }
                 Card(onClick = { onNivelSeleccionado(nivel) }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = color)) {
                     Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(emoji, fontSize = 40.sp)
@@ -66,7 +66,7 @@ fun AprenderScreen(lengua: LenguaDto?, onNivelSeleccionado: (NivelDto) -> Unit, 
                             Text(nivel.nombre, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                             nivel.descripcion?.let { Text(it, fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f)) }
                         }
-                        Text("→", fontSize = 24.sp, color = Color.White)
+                        Text("â†’", fontSize = 24.sp, color = Color.White)
                     }
                 }
             }
@@ -115,7 +115,7 @@ fun LeccionesScreen(nivel: NivelDto?, onLeccionSeleccionada: (LeccionDto) -> Uni
                             Text(leccion.titulo, fontWeight = FontWeight.Bold, color = CafeTierra, fontSize = 16.sp)
                             leccion.descripcion?.let { Text(it, color = GrisSuave, fontSize = 13.sp) }
                         }
-                        Text("▶", color = Verde, fontSize = 20.sp)
+                        Text("â–¶", color = Verde, fontSize = 20.sp)
                     }
                 }
             }
@@ -187,14 +187,14 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
         Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
             Spacer(Modifier.height(40.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = onVolver) { Text("✕", color = GrisSuave, fontSize = 20.sp) }
+                TextButton(onClick = onVolver) { Text("âœ•", color = GrisSuave, fontSize = 20.sp) }
                 Spacer(Modifier.width(8.dp))
                 LinearProgressIndicator(progress = { progreso }, modifier = Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)), color = Verde, trackColor = GrisSuave.copy(alpha = 0.3f))
                 Spacer(Modifier.width(8.dp))
                 Text("${indiceActual + 1}/${palabras.size}", fontSize = 13.sp, color = GrisSuave)
             }
             Spacer(Modifier.height(32.dp))
-            Text("¿Que significa?", fontSize = 16.sp, color = GrisSuave)
+            Text("Â¿Que significa?", fontSize = 16.sp, color = GrisSuave)
             Spacer(Modifier.height(16.dp))
             Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Verde.copy(alpha = 0.1f))) {
                 Column(modifier = Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -219,7 +219,7 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
                 val esCorrecta = respuestaSeleccionada == palabraActual?.traduccion
                 Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = if (esCorrecta) Verde.copy(alpha = 0.1f) else Terracota.copy(alpha = 0.1f))) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (esCorrecta) "✓" else "✗", fontSize = 24.sp, color = if (esCorrecta) Verde else Terracota, fontWeight = FontWeight.Bold)
+                        Text(if (esCorrecta) "âœ“" else "âœ—", fontSize = 24.sp, color = if (esCorrecta) Verde else Terracota, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(if (esCorrecta) "Correcto!" else "Incorrecto", fontWeight = FontWeight.Bold, color = if (esCorrecta) Verde else Terracota)
@@ -250,7 +250,7 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
 
 @Composable
 fun ResultadoScreen(puntuacion: Int, onContinuar: () -> Unit, onHome: () -> Unit) {
-    val emoji = when { puntuacion >= 90 -> "🏆"; puntuacion >= 70 -> "⭐"; puntuacion >= 50 -> "👍"; else -> "💪" }
+    val emoji = when { puntuacion >= 90 -> "ðŸ†"; puntuacion >= 70 -> "â­"; puntuacion >= 50 -> "ðŸ‘"; else -> "ðŸ’ª" }
     val mensaje = when { puntuacion >= 90 -> "Excelente!"; puntuacion >= 70 -> "Muy bien!"; puntuacion >= 50 -> "Buen intento!"; else -> "Sigue practicando!" }
     val color = if (puntuacion >= 70) Verde else Terracota
 
@@ -320,63 +320,12 @@ fun DiccionarioScreen(lengua: LenguaDto?, onVolver: () -> Unit) {
                             palabra.ejemploUso?.let { Text(it, color = CafeTierra.copy(alpha = 0.6f), fontSize = 12.sp) }
                         }
                         Box(Modifier.size(40.dp).background(if (palabra.audioUrl != null) Verde.copy(alpha = 0.1f) else GrisSuave.copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) {
-                            Text(if (palabra.audioUrl != null) "🔊" else "📝", fontSize = 18.sp)
+                            Text(if (palabra.audioUrl != null) "ðŸ”Š" else "ðŸ“", fontSize = 18.sp)
                         }
                     }
                 }
             }
             item { Spacer(Modifier.height(24.dp)) }
-        }
-    }
-}
-
-@Composable
-fun PerfilScreen(sesion: SesionUsuario?, onVolver: () -> Unit, onCerrarSesion: () -> Unit) {
-    BackHandler { onVolver() }
-    Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
-            item {
-                TopBarConRegreso("Mi Perfil", onVolver)
-                Spacer(Modifier.height(16.dp))
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(modifier = Modifier.size(100.dp).background(Verde, CircleShape), contentAlignment = Alignment.Center) {
-                            Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Text(sesion?.nombreCompleto ?: "Usuario", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
-                        Text("@${sesion?.nombreUsuario ?: ""}", fontSize = 14.sp, color = GrisSuave)
-                    }
-                }
-                Spacer(Modifier.height(24.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    listOf(Triple("7","Racha","🔥"), Triple("3","Lecciones","📚"), Triple("85%","Promedio","⭐")).forEach { (valor, label, emoji) ->
-                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                            Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(emoji, fontSize = 24.sp)
-                                Text(valor, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
-                                Text(label, fontSize = 11.sp, color = GrisSuave, textAlign = TextAlign.Center)
-                            }
-                        }
-                    }
-                }
-                Spacer(Modifier.height(24.dp))
-                listOf(Pair("🏆","Mis logros"), Pair("📊","Mi progreso"), Pair("⚙️","Configuracion"), Pair("❓","Ayuda")).forEach { (emoji, label) ->
-                    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White), onClick = {}) {
-                        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(emoji, fontSize = 20.sp)
-                            Spacer(Modifier.width(16.dp))
-                            Text(label, fontSize = 16.sp, color = CafeTierra, modifier = Modifier.weight(1f))
-                            Text("→", color = GrisSuave, fontSize = 16.sp)
-                        }
-                    }
-                }
-                Spacer(Modifier.height(24.dp))
-                Button(onClick = onCerrarSesion, colors = ButtonDefaults.buttonColors(containerColor = Terracota), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(52.dp)) {
-                    Text("Cerrar sesion", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                }
-                Spacer(Modifier.height(32.dp))
-            }
         }
     }
 }
