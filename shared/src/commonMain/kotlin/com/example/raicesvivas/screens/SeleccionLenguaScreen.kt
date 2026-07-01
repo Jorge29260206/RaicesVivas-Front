@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.raicesvivas.models.LenguaDto
+import com.example.raicesvivas.models.Resultado
 import com.example.raicesvivas.repository.RaicesRepository
 import com.example.raicesvivas.theme.*
 
@@ -23,9 +24,14 @@ fun SeleccionLenguaScreen(onLenguaSeleccionada: (LenguaDto) -> Unit, onVolver: (
     val repo = remember { RaicesRepository() }
     var lenguas by remember { mutableStateOf<List<LenguaDto>>(emptyList()) }
     var cargando by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        try { lenguas = repo.getLenguas() } catch (e: Exception) { }
+        when (val r = repo.getLenguas()) {
+            is Resultado.Exito -> lenguas = r.datos
+            is Resultado.Error -> error = r.mensaje
+            Resultado.Cargando -> {}
+        }
         cargando = false
     }
 
@@ -37,7 +43,10 @@ fun SeleccionLenguaScreen(onLenguaSeleccionada: (LenguaDto) -> Unit, onVolver: (
                 TopBarConRegreso("Elige tu lengua", onVolver)
                 Text("Descarga el paquete para usarlo sin conexion.", fontSize = 14.sp, color = CafeTierra.copy(alpha = 0.7f), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(16.dp))
-                if (cargando) { Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Verde) } }
+                if (cargando) Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Verde) }
+                error?.let {
+                    Text(it, color = Terracota, fontSize = 13.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                }
             }
             items(lenguas) { lengua ->
                 Card(onClick = { onLenguaSeleccionada(lengua) }, modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {

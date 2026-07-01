@@ -14,6 +14,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.raicesvivas.models.Resultado
 import com.example.raicesvivas.models.SesionUsuario
 import com.example.raicesvivas.repository.RaicesRepository
 import com.example.raicesvivas.theme.*
@@ -51,17 +52,12 @@ fun EntrarScreen(onLoginExitoso: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
                     if (errorCorreo == null && errorContrasena == null) {
                         scope.launch {
                             cargando = true
-                            mensajeServidor = try {
-                                val resultado = repo.login(correo, contrasena)
-                                if (resultado.contains("exitoso", true)) {
-                                    val partes = resultado.substringAfter("Bienvenido").trim().trimEnd('"', '}').split("|")
-                                    val nombre = partes.getOrElse(0) { "" }.trim()
-                                    val id = partes.getOrElse(1) { "0" }.trim().toIntOrNull() ?: 0
-                                    val nombreCompleto = partes.getOrElse(2) { "" }.trim()
-                                    onLoginExitoso(SesionUsuario(id, nombre, nombreCompleto))
-                                    ""
-                                } else resultado
-                            } catch (e: Exception) { "Error: ${e.message}" }
+                            mensajeServidor = ""
+                            when (val resultado = repo.login(correo, contrasena)) {
+                                is Resultado.Exito -> onLoginExitoso(resultado.datos)
+                                is Resultado.Error -> mensajeServidor = resultado.mensaje
+                                Resultado.Cargando -> {}
+                            }
                             cargando = false
                         }
                     }

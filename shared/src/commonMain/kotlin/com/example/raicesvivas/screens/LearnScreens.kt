@@ -28,9 +28,16 @@ fun AprenderScreen(lengua: LenguaDto?, onNivelSeleccionado: (NivelDto) -> Unit, 
     val repo = remember { RaicesRepository() }
     var niveles by remember { mutableStateOf<List<NivelDto>>(emptyList()) }
     var cargando by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(lengua?.id) {
-        lengua?.let { try { niveles = repo.getNiveles(it.id) } catch (e: Exception) { } }
+        lengua?.let {
+            when (val r = repo.getNiveles(it.id)) {
+                is Resultado.Exito -> niveles = r.datos
+                is Resultado.Error -> error = r.mensaje
+                Resultado.Cargando -> {}
+            }
+        }
         cargando = false
     }
 
@@ -43,6 +50,7 @@ fun AprenderScreen(lengua: LenguaDto?, onNivelSeleccionado: (NivelDto) -> Unit, 
                 Text("Elige tu nivel para comenzar", fontSize = 14.sp, color = CafeTierra.copy(alpha = 0.7f))
                 Spacer(Modifier.height(16.dp))
                 if (cargando) Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Verde) }
+                error?.let { Text(it, color = Terracota, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) }
             }
             items(niveles) { nivel ->
                 val colores = listOf(Verde, Turquesa, Terracota)
@@ -72,9 +80,16 @@ fun LeccionesScreen(nivel: NivelDto?, onLeccionSeleccionada: (LeccionDto) -> Uni
     val repo = remember { RaicesRepository() }
     var lecciones by remember { mutableStateOf<List<LeccionDto>>(emptyList()) }
     var cargando by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(nivel?.id) {
-        nivel?.let { try { lecciones = repo.getLecciones(it.id) } catch (e: Exception) { } }
+        nivel?.let {
+            when (val r = repo.getLecciones(it.id)) {
+                is Resultado.Exito -> lecciones = r.datos
+                is Resultado.Error -> error = r.mensaje
+                Resultado.Cargando -> {}
+            }
+        }
         cargando = false
     }
 
@@ -87,6 +102,7 @@ fun LeccionesScreen(nivel: NivelDto?, onLeccionSeleccionada: (LeccionDto) -> Uni
                 Text("Elige una leccion para comenzar", fontSize = 14.sp, color = CafeTierra.copy(alpha = 0.7f))
                 Spacer(Modifier.height(16.dp))
                 if (cargando) Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Verde) }
+                error?.let { Text(it, color = Terracota, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) }
             }
             items(lecciones) { leccion ->
                 Card(onClick = { onLeccionSeleccionada(leccion) }, modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
@@ -118,15 +134,35 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
     var mostrarResultado by remember { mutableStateOf(false) }
     var aciertos by remember { mutableStateOf(0) }
     var cargando by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(leccion?.id) {
-        leccion?.let { try { palabras = repo.getPalabrasPorLeccion(it.id) } catch (e: Exception) { } }
+        leccion?.let {
+            when (val r = repo.getPalabrasPorLeccion(it.id)) {
+                is Resultado.Exito -> palabras = r.datos
+                is Resultado.Error -> error = r.mensaje
+                Resultado.Cargando -> {}
+            }
+        }
         cargando = false
     }
 
     BackHandler { onVolver() }
 
     if (cargando) { Box(Modifier.fillMaxSize().background(BeigeCalido), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Verde) }; return }
+
+    if (error != null) {
+        Box(Modifier.fillMaxSize().background(BeigeCalido), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+                Text("Sin conexion", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
+                Spacer(Modifier.height(8.dp))
+                Text(error ?: "", fontSize = 14.sp, color = Terracota, textAlign = TextAlign.Center)
+                Spacer(Modifier.height(24.dp))
+                Button(onClick = onVolver, colors = ButtonDefaults.buttonColors(containerColor = Verde)) { Text("Volver", color = Color.White) }
+            }
+        }
+        return
+    }
 
     if (palabras.isEmpty()) {
         Box(Modifier.fillMaxSize().background(BeigeCalido), contentAlignment = Alignment.Center) {
@@ -197,7 +233,7 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
                         if (indiceActual < palabras.size - 1) { indiceActual++; respuestaSeleccionada = null; mostrarResultado = false }
                         else {
                             val puntuacion = (aciertos.toFloat() / palabras.size * 100).toInt()
-                            sesion?.let { s -> leccion?.let { l -> scope.launch { try { repo.guardarProgreso(s.id, l.id, puntuacion) } catch (e: Exception) { } } } }
+                            sesion?.let { s -> leccion?.let { l -> scope.launch { repo.guardarProgreso(s.id, l.id, puntuacion) } } }
                             onTerminar(puntuacion)
                         }
                     },
@@ -247,9 +283,16 @@ fun DiccionarioScreen(lengua: LenguaDto?, onVolver: () -> Unit) {
     var palabras by remember { mutableStateOf<List<PalabraDto>>(emptyList()) }
     var cargando by remember { mutableStateOf(true) }
     var busqueda by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(lengua?.id) {
-        lengua?.let { try { palabras = repo.getPalabras(it.id) } catch (e: Exception) { } }
+        lengua?.let {
+            when (val r = repo.getPalabras(it.id)) {
+                is Resultado.Exito -> palabras = r.datos
+                is Resultado.Error -> error = r.mensaje
+                Resultado.Cargando -> {}
+            }
+        }
         cargando = false
     }
 
@@ -264,7 +307,8 @@ fun DiccionarioScreen(lengua: LenguaDto?, onVolver: () -> Unit) {
                 OutlinedTextField(value = busqueda, onValueChange = { busqueda = it }, label = { Text("Buscar palabra...") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), singleLine = true)
                 Spacer(Modifier.height(16.dp))
                 if (cargando) Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Verde) }
-                if (!cargando && palabrasFiltradas.isEmpty()) Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No se encontraron palabras", color = GrisSuave, fontSize = 14.sp) }
+                error?.let { Text(it, color = Terracota, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) }
+                if (!cargando && palabrasFiltradas.isEmpty() && error == null) Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No se encontraron palabras", color = GrisSuave, fontSize = 14.sp) }
             }
             items(palabrasFiltradas) { palabra ->
                 Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
@@ -289,7 +333,6 @@ fun DiccionarioScreen(lengua: LenguaDto?, onVolver: () -> Unit) {
 @Composable
 fun PerfilScreen(sesion: SesionUsuario?, onVolver: () -> Unit, onCerrarSesion: () -> Unit) {
     BackHandler { onVolver() }
-
     Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
