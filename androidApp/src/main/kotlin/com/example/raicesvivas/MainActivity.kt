@@ -1,4 +1,4 @@
-package com.example.raicesvivas
+﻿package com.example.raicesvivas
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -46,6 +46,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             var mostrarDialogoFoto by remember { mutableStateOf(false) }
             var sesionId by remember { mutableStateOf<Int?>(null) }
+            var sesionActual by remember { mutableStateOf<com.example.raicesvivas.models.SesionUsuario?>(null) }
+            val context = this@MainActivity
             val repo = remember { RaicesRepository() }
 
             val fotoUri = remember {
@@ -80,7 +82,7 @@ class MainActivity : ComponentActivity() {
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("📷  Tomar foto", color = Color.White)
+                                Text("ðŸ“·  Tomar foto", color = Color.White)
                             }
                             Spacer(Modifier.height(8.dp))
                             Button(
@@ -92,7 +94,7 @@ class MainActivity : ComponentActivity() {
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("🖼️  Elegir de galeria", color = Color.White)
+                                Text("ðŸ–¼ï¸  Elegir de galeria", color = Color.White)
                             }
                             Spacer(Modifier.height(8.dp))
                             TextButton(onClick = { mostrarDialogoFoto = false }) {
@@ -103,7 +105,23 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            App(onSolicitarFoto = { mostrarDialogoFoto = true })
+            App(
+                onSolicitarFoto = { mostrarDialogoFoto = true },
+                onLoginExitoso = { sesion ->
+                    sesionActual = sesion
+                    CoroutineScope(Dispatchers.IO).launch {
+                        SesionDataStore.guardarSesion(context, sesion)
+                        NotificacionHelper.mostrarNotificacionBienvenida(context, sesion.nombreUsuario)
+                    }
+                },
+                onCerrarSesion = {
+                    sesionActual = null
+                    CoroutineScope(Dispatchers.IO).launch {
+                        SesionDataStore.cerrarSesion(context)
+                        NotificacionHelper.cancelarRecordatorio(context)
+                    }
+                }
+            )
         }
     }
 
