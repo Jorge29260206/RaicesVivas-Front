@@ -39,6 +39,19 @@ class MainActivity : ComponentActivity() {
         if (concedido) NotificacionHelper.programarRecordatorioDiario(this)
     }
 
+    private fun copiarUriAArchivo(uri: Uri): File? {
+        return try {
+            val archivo = File(cacheDir, "foto_perfil_temp.jpg")
+            contentResolver.openInputStream(uri)?.use { input ->
+                archivo.outputStream().use { output -> input.copyTo(output) }
+            }
+            archivo
+        } catch (e: Exception) {
+            android.util.Log.e("FOTO", "Error copiando: ")
+            null
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CloudinaryConfig.inicializar(this)
@@ -57,26 +70,35 @@ class MainActivity : ComponentActivity() {
 
             val fotoUri = remember {
                 val archivo = File(filesDir, "foto_temp.jpg")
-                FileProvider.getUriForFile(this, ".provider", archivo)
+                FileProvider.getUriForFile(context, "com.example.raicesvivas.provider", archivo)
+            }
+
+            fun subirFoto(rutaArchivo: String) {
+                CloudinaryConfig.subirFoto(
+                    rutaArchivo = rutaArchivo,
+                    onExito = { url ->
+                        fotoUrlActual = url
+                        sesionActual?.let { sesion ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                repo.actualizarFoto(sesion.id, url)
+                                SesionDataStore.guardarSesion(context, sesion.copy(fotoUrl = url))
+                            }
+                        }
+                    },
+                    onError = { error -> android.util.Log.e("FOTO", "Error: El término 'en' no se reconoce como nombre de un cmdlet, función, archivo de script o programa ejecutable. Compruebe si escribió correctamente el nombre o, si incluyó una ruta de acceso, compruebe que dicha ruta es correcta e inténtelo de nuevo.") }
+                )
             }
 
             val launcherGaleria = rememberLauncherForActivityResult(
                 ActivityResultContracts.PickVisualMedia()
             ) { uri: Uri? ->
                 uri?.let { imageUri ->
-                    CloudinaryConfig.subirFoto(
-                        rutaArchivo = imageUri.toString(),
-                        onExito = { url ->
-                            fotoUrlActual = url
-                            sesionActual?.let { sesion ->
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    repo.actualizarFoto(sesion.id, url)
-                                    SesionDataStore.guardarSesion(context, sesion.copy(fotoUrl = url))
-                                }
-                            }
-                        },
-                        onError = { error -> android.util.Log.e("FOTO", "Error: El término 'en' no se reconoce como nombre de un cmdlet, función, archivo de script o programa ejecutable. Compruebe si escribió correctamente el nombre o, si incluyó una ruta de acceso, compruebe que dicha ruta es correcta e inténtelo de nuevo.") }
-                    )
+                    val archivo = copiarUriAArchivo(imageUri)
+                    if (archivo != null) {
+                        subirFoto(archivo.absolutePath)
+                    } else {
+                        android.util.Log.e("FOTO", "No se pudo copiar el archivo")
+                    }
                 }
             }
 
@@ -84,19 +106,8 @@ class MainActivity : ComponentActivity() {
                 ActivityResultContracts.TakePicture()
             ) { exito ->
                 if (exito) {
-                    CloudinaryConfig.subirFoto(
-                        rutaArchivo = fotoUri.toString(),
-                        onExito = { url ->
-                            fotoUrlActual = url
-                            sesionActual?.let { sesion ->
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    repo.actualizarFoto(sesion.id, url)
-                                    SesionDataStore.guardarSesion(context, sesion.copy(fotoUrl = url))
-                                }
-                            }
-                        },
-                        onError = { error -> android.util.Log.e("FOTO", "Error: El término 'en' no se reconoce como nombre de un cmdlet, función, archivo de script o programa ejecutable. Compruebe si escribió correctamente el nombre o, si incluyó una ruta de acceso, compruebe que dicha ruta es correcta e inténtelo de nuevo.") }
-                    )
+                    val archivo = File(filesDir, "foto_temp.jpg")
+                    subirFoto(archivo.absolutePath)
                 }
             }
 

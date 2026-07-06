@@ -61,7 +61,7 @@ object NotificacionHelper {
 
     fun mostrarNotificacionBienvenida(context: Context, nombre: String) {
         crearCanal(context)
-        val mensaje = "Hola ! " + MENSAJES_BIENVENIDA.random()
+        val mensaje = "Hola $nombre! " + MENSAJES_BIENVENIDA.random()
         val notif = NotificationCompat.Builder(context, CANAL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("RaicesVivas te da la bienvenida!")
