@@ -1,4 +1,4 @@
-package com.example.raicesvivas
+﻿package com.example.raicesvivas
 
 import androidx.compose.runtime.*
 import com.example.raicesvivas.models.*
@@ -12,19 +12,26 @@ enum class Pantalla {
 }
 
 @Composable
-fun App(onSolicitarFoto: (() -> Unit)? = null) {
+fun App(
+    sesionInicial: SesionUsuario? = null,
+    onSolicitarFoto: (() -> Unit)? = null,
+    onLoginExitoso: ((SesionUsuario) -> Unit)? = null,
+    onCerrarSesion: (() -> Unit)? = null
+) {
     RaicesTheme {
-        var pantalla by remember { mutableStateOf(Pantalla.SPLASH) }
-        var onboardingVisto by remember { mutableStateOf(false) }
-        var sesion by remember { mutableStateOf<SesionUsuario?>(null) }
+        var pantalla by remember { mutableStateOf(if (sesionInicial != null) Pantalla.HOME else Pantalla.SPLASH) }
+        var onboardingVisto by remember { mutableStateOf(sesionInicial != null) }
+        var sesion by remember { mutableStateOf<SesionUsuario?>(sesionInicial) }
         var lenguaSeleccionada by remember { mutableStateOf<LenguaDto?>(null) }
         var nivelSeleccionado by remember { mutableStateOf<NivelDto?>(null) }
         var leccionSeleccionada by remember { mutableStateOf<LeccionDto?>(null) }
         var puntuacionFinal by remember { mutableStateOf(0) }
 
-        LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(2000)
-            pantalla = if (!onboardingVisto) Pantalla.ONBOARDING else Pantalla.LOGIN
+        if (sesionInicial == null) {
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(2000)
+                pantalla = if (!onboardingVisto) Pantalla.ONBOARDING else Pantalla.LOGIN
+            }
         }
 
         when (pantalla) {
@@ -38,11 +45,19 @@ fun App(onSolicitarFoto: (() -> Unit)? = null) {
                 onEntrar = { pantalla = Pantalla.ENTRAR }
             )
             Pantalla.ENTRAR -> EntrarScreen(
-                onLoginExitoso = { s -> sesion = s; pantalla = Pantalla.HOME },
+                onLoginExitoso = { s ->
+                    sesion = s
+                    pantalla = Pantalla.HOME
+                    onLoginExitoso?.invoke(s)
+                },
                 onVolver = { pantalla = Pantalla.LOGIN }
             )
             Pantalla.REGISTRO -> RegistroScreen(
-                onRegistrado = { s -> sesion = s; pantalla = Pantalla.SELECCION_LENGUA },
+                onRegistrado = { s ->
+                    sesion = s
+                    pantalla = Pantalla.SELECCION_LENGUA
+                    onLoginExitoso?.invoke(s)
+                },
                 onVolver = { pantalla = Pantalla.LOGIN }
             )
             Pantalla.SELECCION_LENGUA -> SeleccionLenguaScreen(
@@ -85,7 +100,11 @@ fun App(onSolicitarFoto: (() -> Unit)? = null) {
             Pantalla.PERFIL -> PerfilScreen(
                 sesion = sesion,
                 onVolver = { pantalla = Pantalla.HOME },
-                onCerrarSesion = { sesion = null; pantalla = Pantalla.LOGIN },
+                onCerrarSesion = {
+                    sesion = null
+                    pantalla = Pantalla.LOGIN
+                    onCerrarSesion?.invoke()
+                },
                 onCambiarFoto = { onSolicitarFoto?.invoke() }
             )
         }

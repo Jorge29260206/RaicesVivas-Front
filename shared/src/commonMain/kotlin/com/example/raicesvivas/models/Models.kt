@@ -2,7 +2,7 @@ package com.example.raicesvivas.models
 
 import kotlinx.serialization.Serializable
 
-data class SesionUsuario(val id: Int, val nombreUsuario: String, val nombreCompleto: String)
+data class SesionUsuario(val id: Int, val nombreUsuario: String, val nombreCompleto: String, val fotoUrl: String? = null)
 
 @Serializable data class RegistroRequestDto(val nombreCompleto: String, val nombreUsuario: String, val correo: String, val contrasena: String, val edad: Int, val pais: String)
 @Serializable data class LoginRequestDto(val correo: String, val contrasena: String)
