@@ -1,6 +1,5 @@
-package com.example.raicesvivas.screens
+﻿package com.example.raicesvivas.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,12 +24,14 @@ fun PerfilScreen(
     sesion: SesionUsuario?,
     onVolver: () -> Unit,
     onCerrarSesion: () -> Unit,
+    onCambiarFoto: () -> Unit = {},
     fotoUrl: String? = null,
-    subiendo: Boolean = false,
-    mensajeFoto: String = "",
-    onCambiarFoto: () -> Unit = {}
+    fotoContent: @Composable (Modifier) -> Unit = { modifier ->
+        Box(modifier = modifier.background(Verde, CircleShape), contentAlignment = Alignment.Center) {
+            Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        }
+    }
 ) {
-    BackHandler { onVolver() }
     Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
@@ -41,15 +43,7 @@ fun PerfilScreen(
                             modifier = Modifier.size(100.dp).clickable { onCambiarFoto() },
                             contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize().background(Verde, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U",
-                                    fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Color.White
-                                )
-                            }
+                            fotoContent(Modifier.fillMaxSize().clip(CircleShape))
                             Box(
                                 modifier = Modifier.align(Alignment.BottomEnd).size(28.dp).background(Terracota, CircleShape),
                                 contentAlignment = Alignment.Center
@@ -58,11 +52,8 @@ fun PerfilScreen(
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        if (subiendo) CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Verde, strokeWidth = 2.dp)
-                        if (mensajeFoto.isNotEmpty()) Text(mensajeFoto, fontSize = 12.sp, color = if (mensajeFoto.contains("Error")) Terracota else Verde)
-                        Spacer(Modifier.height(8.dp))
                         Text(sesion?.nombreCompleto ?: "Usuario", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
-                        Text("@${sesion?.nombreUsuario ?: ""}", fontSize = 14.sp, color = GrisSuave)
+                        Text("@", fontSize = 14.sp, color = GrisSuave)
                         Text("Toca la foto para cambiarla", fontSize = 11.sp, color = GrisSuave.copy(alpha = 0.7f))
                     }
                 }
@@ -85,7 +76,7 @@ fun PerfilScreen(
                             Text(emoji, fontSize = 20.sp)
                             Spacer(Modifier.width(16.dp))
                             Text(label, fontSize = 16.sp, color = CafeTierra, modifier = Modifier.weight(1f))
-                            Text("→", color = GrisSuave, fontSize = 16.sp)
+                            Text("->", color = GrisSuave, fontSize = 16.sp)
                         }
                     }
                 }

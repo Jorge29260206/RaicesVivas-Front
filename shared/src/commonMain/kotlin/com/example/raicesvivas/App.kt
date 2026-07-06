@@ -1,6 +1,7 @@
 ﻿package com.example.raicesvivas
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import com.example.raicesvivas.models.*
 import com.example.raicesvivas.screens.*
 import com.example.raicesvivas.theme.RaicesTheme
@@ -16,7 +17,9 @@ fun App(
     sesionInicial: SesionUsuario? = null,
     onSolicitarFoto: (() -> Unit)? = null,
     onLoginExitoso: ((SesionUsuario) -> Unit)? = null,
-    onCerrarSesion: (() -> Unit)? = null
+    onCerrarSesion: (() -> Unit)? = null,
+    fotoUrl: String? = null,
+    perfilContent: (@Composable (SesionUsuario?, () -> Unit, () -> Unit, () -> Unit) -> Unit)? = null
 ) {
     RaicesTheme {
         var pantalla by remember { mutableStateOf(if (sesionInicial != null) Pantalla.HOME else Pantalla.SPLASH) }
@@ -97,16 +100,31 @@ fun App(
                 lengua = lenguaSeleccionada,
                 onVolver = { pantalla = Pantalla.HOME }
             )
-            Pantalla.PERFIL -> PerfilScreen(
-                sesion = sesion,
-                onVolver = { pantalla = Pantalla.HOME },
-                onCerrarSesion = {
-                    sesion = null
-                    pantalla = Pantalla.LOGIN
-                    onCerrarSesion?.invoke()
-                },
-                onCambiarFoto = { onSolicitarFoto?.invoke() }
-            )
+            Pantalla.PERFIL -> {
+                if (perfilContent != null) {
+                    perfilContent(
+                        sesion,
+                        { pantalla = Pantalla.HOME },
+                        {
+                            sesion = null
+                            pantalla = Pantalla.LOGIN
+                            onCerrarSesion?.invoke()
+                        },
+                        { onSolicitarFoto?.invoke() }
+                    )
+                } else {
+                    PerfilScreen(
+                        sesion = sesion,
+                        onVolver = { pantalla = Pantalla.HOME },
+                        onCerrarSesion = {
+                            sesion = null
+                            pantalla = Pantalla.LOGIN
+                            onCerrarSesion?.invoke()
+                        },
+                        onCambiarFoto = { onSolicitarFoto?.invoke() }
+                    )
+                }
+            }
         }
     }
 }
