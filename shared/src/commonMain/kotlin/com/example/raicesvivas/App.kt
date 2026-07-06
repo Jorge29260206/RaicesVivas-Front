@@ -12,7 +12,7 @@ enum class Pantalla {
 }
 
 @Composable
-fun App() {
+fun App(onSolicitarFoto: (() -> Unit)? = null) {
     RaicesTheme {
         var pantalla by remember { mutableStateOf(Pantalla.SPLASH) }
         var onboardingVisto by remember { mutableStateOf(false) }
@@ -85,7 +85,8 @@ fun App() {
             Pantalla.PERFIL -> PerfilScreen(
                 sesion = sesion,
                 onVolver = { pantalla = Pantalla.HOME },
-                onCerrarSesion = { sesion = null; pantalla = Pantalla.LOGIN }
+                onCerrarSesion = { sesion = null; pantalla = Pantalla.LOGIN },
+                onCambiarFoto = { onSolicitarFoto?.invoke() }
             )
         }
     }
