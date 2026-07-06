@@ -1,6 +1,5 @@
 package com.example.raicesvivas.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,8 +39,6 @@ fun RegistroScreen(onRegistrado: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
     var errorPais by remember { mutableStateOf<String?>(null) }
     var mensajeServidor by remember { mutableStateOf("") }
     var cargando by remember { mutableStateOf(false) }
-
-    BackHandler { onVolver() }
 
     Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {

@@ -1,4 +1,4 @@
-﻿package com.example.raicesvivas
+package com.example.raicesvivas
 
 import androidx.compose.runtime.*
 import com.example.raicesvivas.models.*

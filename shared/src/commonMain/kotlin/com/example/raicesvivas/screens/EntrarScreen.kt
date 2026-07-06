@@ -1,6 +1,5 @@
 package com.example.raicesvivas.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,13 +32,11 @@ fun EntrarScreen(onLoginExitoso: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
     var mensajeServidor by remember { mutableStateOf("") }
     var cargando by remember { mutableStateOf(false) }
 
-    BackHandler { onVolver() }
-
     Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             TopBarConRegreso("Iniciar sesion", onVolver)
             Spacer(Modifier.height(16.dp))
-            OutlinedTextField(value = correo, onValueChange = { correo = it; errorCorreo = validarCorreoLogin(it) }, label = { Text("Correo electronico") }, isError = errorCorreo != null, supportingText = { errorCorreo?.let { Text(it, color = Terracota, fontSize = 12.sp) } }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(value = correo, onValueChange = { correo = it; errorCorreo = validarCorreoLogin(it) }, label    = { Text("Correo electronico") }, isError = errorCorreo != null, supportingText = { errorCorreo?.let { Text(it, color = Terracota, fontSize = 12.sp) } }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(value = contrasena, onValueChange = { contrasena = it; errorContrasena = validarContrasenaLogin(it) }, label = { Text("Contrasena") }, isError = errorContrasena != null, supportingText = { errorContrasena?.let { Text(it, color = Terracota, fontSize = 12.sp) } }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), visualTransformation = PasswordVisualTransformation())
             Spacer(Modifier.height(16.dp))
