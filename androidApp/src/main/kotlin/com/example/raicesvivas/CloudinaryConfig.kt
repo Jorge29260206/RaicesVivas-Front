@@ -12,7 +12,7 @@ object CloudinaryConfig {
         val config = mapOf(
             "cloud_name" to CLOUD_NAME,
             "api_key" to API_KEY,
-            "api_secret" to API_SECRET
+            "api_secret" to API_SECRET,
         )
         MediaManager.init(context, config)
     }
@@ -25,11 +25,12 @@ object CloudinaryConfig {
         MediaManager.get()
             .upload(rutaArchivo)
             .option("folder", "raicesvivas/perfiles")
-            .callback(object : com.cloudinary.android.callback.UploadCallback {
+            .callback(
+                object : com.cloudinary.android.callback.UploadCallback {
                 override fun onStart(requestId: String) {}
                 override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
-                    val url = resultData["secure_url"] as? String ?: ""
+                    val url = (resultData["secure_url"] as? String) ?: ""
                     onExito(url)
                 }
                 override fun onError(requestId: String, error: com.cloudinary.android.callback.ErrorInfo) {

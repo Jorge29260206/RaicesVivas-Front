@@ -30,7 +30,7 @@ fun EntrarScreen(onLoginExitoso: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
     var errorCorreo by remember { mutableStateOf<String?>(null) }
     var errorContrasena by remember { mutableStateOf<String?>(null) }
     var mensajeServidor by remember { mutableStateOf("") }
-    var cargando by remember { mutableStateOf(false) }
+    var cargando by remember { mutableStateOf(value = false) }
 
     Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -46,7 +46,7 @@ fun EntrarScreen(onLoginExitoso: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
                 onClick = {
                     errorCorreo = validarCorreoLogin(correo)
                     errorContrasena = validarContrasenaLogin(contrasena)
-                    if (errorCorreo == null && errorContrasena == null) {
+                    if ((errorCorreo == null) && (errorContrasena == null)) {
                         scope.launch {
                             cargando = true
                             mensajeServidor = ""
@@ -62,7 +62,7 @@ fun EntrarScreen(onLoginExitoso: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
                 enabled = !cargando,
                 colors = ButtonDefaults.buttonColors(containerColor = Verde),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth().height(52.dp)
+                modifier = Modifier.fillMaxWidth().height(52.dp),
             ) {
                 if (cargando) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                 else Text("Entrar", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)

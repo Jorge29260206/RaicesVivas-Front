@@ -25,6 +25,7 @@ import androidx.core.content.FileProvider
 import com.example.raicesvivas.models.SesionUsuario
 import com.example.raicesvivas.repository.RaicesRepository
 import com.example.raicesvivas.theme.*
+import com.example.raicesvivas.utils.RegionHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,6 +40,31 @@ class MainActivity : ComponentActivity() {
         if (concedido) NotificacionHelper.programarRecordatorioDiario(this)
     }
 
+    private val solicitarPermisoUbicacion = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permisos ->
+        val concedido = (permisos[Manifest.permission.ACCESS_FINE_LOCATION] == true) ||
+                (permisos[Manifest.permission.ACCESS_COARSE_LOCATION] == true)
+        if (concedido) {
+            obtenerUbicacionYSugerir()
+        }
+    }
+
+    private var onSugerenciaObtenida: ((RegionHelper.SugerenciaGPS) -> Unit)? = null
+
+    private fun obtenerUbicacionYSugerir() {
+        val geoManager = GeolocalizacionManager(this)
+        geoManager.obtenerUbicacion(
+            onUbicacion = { lat, lon ->
+                val sugerencia = RegionHelper.sugerirLengua(lat, lon)
+                onSugerenciaObtenida?.invoke(sugerencia)
+            },
+            onError = { _ ->
+                android.util.Log.e("GPS", "Error obteniendo ubicacion")
+            }
+        )
+    }
+
     private fun copiarUriAArchivo(uri: Uri): File? {
         return try {
             val archivo = File(cacheDir, "foto_perfil_temp.jpg")
@@ -47,7 +73,7 @@ class MainActivity : ComponentActivity() {
             }
             archivo
         } catch (e: Exception) {
-            android.util.Log.e("FOTO", "Error copiando: ")
+            android.util.Log.e("FOTO", "Error copiando: ${e.message}")
             null
         }
     }
@@ -67,26 +93,29 @@ class MainActivity : ComponentActivity() {
             var mostrarDialogoFoto by remember { mutableStateOf(false) }
             var sesionActual by remember { mutableStateOf<SesionUsuario?>(sesionGuardada) }
             var fotoUrlActual by remember { mutableStateOf<String?>(fotoGuardada) }
+            var sugerenciaGPS by remember { mutableStateOf<RegionHelper.SugerenciaGPS?>(null) }
+
+            // Conecta el callback de ubicacion al estado de Compose
+            onSugerenciaObtenida = { sugerencia -> sugerenciaGPS = sugerencia }
+
+            // Solicitar GPS al iniciar
+            LaunchedEffect(Unit) {
+                val tienePermiso = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+                if (tienePermiso) {
+                    obtenerUbicacionYSugerir()
+                } else {
+                    solicitarPermisoUbicacion.launch(arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ))
+                }
+            }
 
             val fotoUri = remember {
                 val archivo = File(filesDir, "foto_temp.jpg")
                 FileProvider.getUriForFile(context, "com.example.raicesvivas.provider", archivo)
-            }
-
-            fun subirFoto(rutaArchivo: String) {
-                CloudinaryConfig.subirFoto(
-                    rutaArchivo = rutaArchivo,
-                    onExito = { url ->
-                        fotoUrlActual = url
-                        sesionActual?.let { sesion ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                repo.actualizarFoto(sesion.id, url)
-                                SesionDataStore.guardarSesion(context, sesion.copy(fotoUrl = url))
-                            }
-                        }
-                    },
-                    onError = { error -> android.util.Log.e("FOTO", "Error: El término 'en' no se reconoce como nombre de un cmdlet, función, archivo de script o programa ejecutable. Compruebe si escribió correctamente el nombre o, si incluyó una ruta de acceso, compruebe que dicha ruta es correcta e inténtelo de nuevo.") }
-                )
             }
 
             val launcherGaleria = rememberLauncherForActivityResult(
@@ -95,9 +124,19 @@ class MainActivity : ComponentActivity() {
                 uri?.let { imageUri ->
                     val archivo = copiarUriAArchivo(imageUri)
                     if (archivo != null) {
-                        subirFoto(archivo.absolutePath)
-                    } else {
-                        android.util.Log.e("FOTO", "No se pudo copiar el archivo")
+                        CloudinaryConfig.subirFoto(
+                            rutaArchivo = archivo.absolutePath,
+                            onExito = { url ->
+                                fotoUrlActual = url
+                                sesionActual?.let { sesion ->
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        repo.actualizarFoto(sesion.id, url)
+                                        SesionDataStore.guardarSesion(context, sesion.copy(fotoUrl = url))
+                                    }
+                                }
+                            },
+                            onError = { _ -> android.util.Log.e("FOTO", "Error en subida de galeria") }
+                        )
                     }
                 }
             }
@@ -107,7 +146,19 @@ class MainActivity : ComponentActivity() {
             ) { exito ->
                 if (exito) {
                     val archivo = File(filesDir, "foto_temp.jpg")
-                    subirFoto(archivo.absolutePath)
+                    CloudinaryConfig.subirFoto(
+                        rutaArchivo = archivo.absolutePath,
+                        onExito = { url ->
+                            fotoUrlActual = url
+                            sesionActual?.let { sesion ->
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    repo.actualizarFoto(sesion.id, url)
+                                    SesionDataStore.guardarSesion(context, sesion.copy(fotoUrl = url))
+                                }
+                            }
+                        },
+                        onError = { _ -> android.util.Log.e("FOTO", "Error en subida de camara") }
+                    )
                 }
             }
 
@@ -139,6 +190,7 @@ class MainActivity : ComponentActivity() {
 
             App(
                 sesionInicial = sesionGuardada,
+                sugerenciaGPS = sugerenciaGPS,
                 onSolicitarFoto = { mostrarDialogoFoto = true },
                 onLoginExitoso = { sesion ->
                     sesionActual = sesion

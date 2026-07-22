@@ -103,7 +103,7 @@ fun LeccionesScreen(nivel: NivelDto?, onLeccionSeleccionada: (LeccionDto) -> Uni
                 Card(onClick = { onLeccionSeleccionada(leccion) }, modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(48.dp).background(Verde.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
-                            Text("${leccion.orden}", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Verde)
+                            Text(leccion.orden.toString(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Verde)
                         }
                         Spacer(Modifier.width(16.dp))
                         Column(Modifier.weight(1f)) {
@@ -223,16 +223,16 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
                 Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = {
-                        if (indiceActual < palabras.size - 1) { indiceActual++; respuestaSeleccionada = null; mostrarResultado = false }
+                        if (indiceActual < (palabras.size - 1)) { indiceActual++; respuestaSeleccionada = null; mostrarResultado = false }
                         else {
-                            val puntuacion = (aciertos.toFloat() / palabras.size * 100).toInt()
+                            val puntuacion = ((aciertos.toFloat() / palabras.size) * 100).toInt()
                             sesion?.let { s -> leccion?.let { l -> scope.launch { repo.guardarProgreso(s.id, l.id, puntuacion) } } }
                             onTerminar(puntuacion)
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Verde),
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth().height(52.dp)
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
                 ) {
                     Text(if (indiceActual < palabras.size - 1) "Siguiente" else "Ver resultado", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
@@ -257,7 +257,7 @@ fun ResultadoScreen(puntuacion: Int, onContinuar: () -> Unit, onHome: () -> Unit
             Spacer(Modifier.height(16.dp))
             Text("Tu puntuacion", fontSize = 16.sp, color = GrisSuave)
             Spacer(Modifier.height(8.dp))
-            Box(modifier = Modifier.size(120.dp).background(color.copy(alpha = 0.1f), androidx.compose.foundation.shape.CircleShape), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.size(120.dp).background(color.copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) {
                 Text("$puntuacion%", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = color)
             }
             Spacer(Modifier.height(48.dp))

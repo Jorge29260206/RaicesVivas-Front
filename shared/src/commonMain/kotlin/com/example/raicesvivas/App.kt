@@ -1,10 +1,10 @@
 ﻿package com.example.raicesvivas
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import com.example.raicesvivas.models.*
 import com.example.raicesvivas.screens.*
 import com.example.raicesvivas.theme.RaicesTheme
+import com.example.raicesvivas.utils.RegionHelper
 
 enum class Pantalla {
     SPLASH, ONBOARDING, LOGIN, ENTRAR, REGISTRO,
@@ -15,16 +15,16 @@ enum class Pantalla {
 @Composable
 fun App(
     sesionInicial: SesionUsuario? = null,
+    sugerenciaGPS: RegionHelper.SugerenciaGPS? = null,
     onSolicitarFoto: (() -> Unit)? = null,
     onLoginExitoso: ((SesionUsuario) -> Unit)? = null,
     onCerrarSesion: (() -> Unit)? = null,
-    fotoUrl: String? = null,
     perfilContent: (@Composable (SesionUsuario?, () -> Unit, () -> Unit, () -> Unit) -> Unit)? = null
 ) {
     RaicesTheme {
         var pantalla by remember { mutableStateOf(if (sesionInicial != null) Pantalla.HOME else Pantalla.SPLASH) }
         var onboardingVisto by remember { mutableStateOf(sesionInicial != null) }
-        var sesion by remember { mutableStateOf<SesionUsuario?>(sesionInicial) }
+        var sesion by remember { mutableStateOf(sesionInicial) }
         var lenguaSeleccionada by remember { mutableStateOf<LenguaDto?>(null) }
         var nivelSeleccionado by remember { mutableStateOf<NivelDto?>(null) }
         var leccionSeleccionada by remember { mutableStateOf<LeccionDto?>(null) }
@@ -65,7 +65,8 @@ fun App(
             )
             Pantalla.SELECCION_LENGUA -> SeleccionLenguaScreen(
                 onLenguaSeleccionada = { l -> lenguaSeleccionada = l; pantalla = Pantalla.HOME },
-                onVolver = { pantalla = if (sesion != null) Pantalla.HOME else Pantalla.LOGIN }
+                onVolver = { pantalla = if (sesion != null) Pantalla.HOME else Pantalla.LOGIN },
+                sugerenciaGPS = sugerenciaGPS
             )
             Pantalla.HOME -> HomeScreen(
                 sesion = sesion,
@@ -105,22 +106,14 @@ fun App(
                     perfilContent(
                         sesion,
                         { pantalla = Pantalla.HOME },
-                        {
-                            sesion = null
-                            pantalla = Pantalla.LOGIN
-                            onCerrarSesion?.invoke()
-                        },
+                        { sesion = null; pantalla = Pantalla.LOGIN; onCerrarSesion?.invoke() },
                         { onSolicitarFoto?.invoke() }
                     )
                 } else {
                     PerfilScreen(
                         sesion = sesion,
                         onVolver = { pantalla = Pantalla.HOME },
-                        onCerrarSesion = {
-                            sesion = null
-                            pantalla = Pantalla.LOGIN
-                            onCerrarSesion?.invoke()
-                        },
+                        onCerrarSesion = { sesion = null; pantalla = Pantalla.LOGIN; onCerrarSesion?.invoke() },
                         onCambiarFoto = { onSolicitarFoto?.invoke() }
                     )
                 }

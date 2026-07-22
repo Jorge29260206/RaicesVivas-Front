@@ -29,7 +29,7 @@ fun RegistroScreen(onRegistrado: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
     var contrasena by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
     var pais by remember { mutableStateOf("") }
-    var expandirPais by remember { mutableStateOf(false) }
+    var expandirPais by remember { mutableStateOf(value = false) }
     val paises = listOf("Mexico", "Colombia", "Argentina")
     var errorNombre by remember { mutableStateOf<String?>(null) }
     var errorUsuario by remember { mutableStateOf<String?>(null) }
@@ -87,7 +87,7 @@ fun RegistroScreen(onRegistrado: (SesionUsuario) -> Unit, onVolver: () -> Unit) 
                     enabled = !cargando,
                     colors = ButtonDefaults.buttonColors(containerColor = Verde),
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth().height(52.dp)
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
                 ) {
                     if (cargando) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                     else Text("Crear cuenta", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)

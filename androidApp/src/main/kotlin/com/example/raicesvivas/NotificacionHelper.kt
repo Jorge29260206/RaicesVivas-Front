@@ -18,10 +18,10 @@ object NotificacionHelper {
     // =====================================================
 
     // Cada cuantas horas se manda el recordatorio (default: 24 = una vez al dia)
-    const val INTERVALO_HORAS: Long = 1
+    const val INTERVALO_HORAS: Long = 24
 
     // Cuantas horas despues de instalar manda la primera notificacion (default: 20)
-    const val DELAY_INICIAL_HORAS: Long = 1
+    const val DELAY_INICIAL_HORAS: Long = 20
 
     // =====================================================
 
@@ -35,7 +35,7 @@ object NotificacionHelper {
         "Xolo dice: cada palabra que aprendes preserva una cultura",
         "Tu racha no se rompe sola, pero si no practicas... 👀",
         "Las lenguas indigenas viven gracias a ti! No las dejes morir",
-        "5 minutos con Xolo son suficientes para mantener tu racha"
+        "5 minutos con Xolo son suficientes para mantener tu racha",
     )
 
     private val MENSAJES_BIENVENIDA = listOf(
