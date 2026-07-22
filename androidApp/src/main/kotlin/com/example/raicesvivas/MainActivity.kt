@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.example.raicesvivas.models.SesionUsuario
 import com.example.raicesvivas.repository.RaicesRepository
 import com.example.raicesvivas.theme.*
 import com.example.raicesvivas.utils.RegionHelper
@@ -82,6 +81,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val solicitarPermisoCamera = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { _ -> }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
@@ -106,7 +109,7 @@ class MainActivity : ComponentActivity() {
             val repo = remember { RaicesRepository() }
             var mostrarDialogoFoto by remember { mutableStateOf(value = false) }
             var sesionActual by remember { mutableStateOf(sesionGuardada) }
-            var fotoUrlActual by remember { mutableStateOf<String?>(fotoGuardada) }
+            var fotoUrlActual by remember { mutableStateOf(fotoGuardada) }
             var sugerenciaGPS by remember { mutableStateOf<RegionHelper.SugerenciaGPS?>(null) }
 
             // Conecta el callback de ubicacion al estado de Compose
@@ -128,7 +131,8 @@ class MainActivity : ComponentActivity() {
             }
 
             val fotoUri = remember {
-                val archivo = File(filesDir, "foto_temp.jpg")
+                val archivo = File(context.cacheDir, "foto_temp.jpg")
+                if (!archivo.exists()) archivo.createNewFile()
                 FileProvider.getUriForFile(context, "com.example.raicesvivas.provider", archivo)
             }
 
@@ -159,7 +163,7 @@ class MainActivity : ComponentActivity() {
                 ActivityResultContracts.TakePicture()
             ) { exito ->
                 if (exito) {
-                    val archivo = File(filesDir, "foto_temp.jpg")
+                    val archivo = File(context.cacheDir, "foto_temp.jpg")
                     CloudinaryConfig.subirFoto(
                         rutaArchivo = archivo.absolutePath,
                         onExito = { url ->
@@ -183,7 +187,18 @@ class MainActivity : ComponentActivity() {
                             Text("Cambiar foto de perfil", fontSize = 18.sp, color = CafeTierra)
                             Spacer(Modifier.height(20.dp))
                             Button(
-                                onClick = { mostrarDialogoFoto = false; launcherCamara.launch(fotoUri) },
+                                onClick = {
+                                    val tienePermiso = ContextCompat.checkSelfPermission(
+                                        context, Manifest.permission.CAMERA
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                    
+                                    if (tienePermiso) {
+                                        mostrarDialogoFoto = false
+                                        launcherCamara.launch(fotoUri)
+                                    } else {
+                                        solicitarPermisoCamera.launch(Manifest.permission.CAMERA)
+                                    }
+                                },
                                 colors = ButtonDefaults.buttonColors(containerColor = Verde),
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
@@ -211,7 +226,7 @@ class MainActivity : ComponentActivity() {
                         coil.compose.AsyncImage(
                             model = coil.request.ImageRequest.Builder(context)
                                 .data(fotoUrlActual)
-                                .crossfade(true)
+                                .crossfade(enable = true)
                                 .build(),
                             contentDescription = "Foto de perfil",
                             modifier = modifier,
