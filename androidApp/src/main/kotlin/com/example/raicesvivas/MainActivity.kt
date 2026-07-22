@@ -12,14 +12,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -38,7 +39,7 @@ import java.io.File
 class MainActivity : ComponentActivity() {
 
     private val solicitarPermisoNotif = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
+        ActivityResultContracts.RequestPermission(),
     ) { concedido ->
         if (concedido) NotificacionHelper.programarRecordatorioDiario(this)
     }
@@ -103,8 +104,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = this@MainActivity
             val repo = remember { RaicesRepository() }
-            var mostrarDialogoFoto by remember { mutableStateOf(false) }
-            var sesionActual by remember { mutableStateOf<SesionUsuario?>(sesionGuardada) }
+            var mostrarDialogoFoto by remember { mutableStateOf(value = false) }
+            var sesionActual by remember { mutableStateOf(sesionGuardada) }
             var fotoUrlActual by remember { mutableStateOf<String?>(fotoGuardada) }
             var sugerenciaGPS by remember { mutableStateOf<RegionHelper.SugerenciaGPS?>(null) }
 
@@ -204,6 +205,32 @@ class MainActivity : ComponentActivity() {
             App(
                 sesionInicial = sesionGuardada,
                 sugerenciaGPS = sugerenciaGPS,
+                fotoUrl = fotoUrlActual,
+                fotoContent = { modifier ->
+                    if (!fotoUrlActual.isNullOrEmpty()) {
+                        coil.compose.AsyncImage(
+                            model = coil.request.ImageRequest.Builder(context)
+                                .data(fotoUrlActual)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "Foto de perfil",
+                            modifier = modifier,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    } else {
+                        Box(
+                            modifier = modifier.background(Verde, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                sesionActual?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U",
+                                fontSize = 20.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                },
                 onSolicitarFoto = { mostrarDialogoFoto = true },
                 onLoginExitoso = { sesion ->
                     sesionActual = sesion

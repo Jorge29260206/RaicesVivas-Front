@@ -4,8 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 import com.example.raicesvivas.models.*
 import com.example.raicesvivas.screens.*
 import com.example.raicesvivas.theme.BeigeCalido
@@ -25,6 +29,8 @@ fun App(
     onSolicitarFoto: (() -> Unit)? = null,
     onLoginExitoso: ((SesionUsuario) -> Unit)? = null,
     onCerrarSesion: (() -> Unit)? = null,
+    fotoUrl: String? = null,
+    fotoContent: (@Composable (Modifier) -> Unit)? = null,
     perfilContent: (@Composable (SesionUsuario?, () -> Unit, () -> Unit, () -> Unit, () -> Unit) -> Unit)? = null,
     mapaContent: (@Composable ((String) -> Unit, () -> Unit, String?) -> Unit)? = null
 ) {
@@ -105,7 +111,12 @@ fun App(
                         onAprender = { pantalla = Pantalla.APRENDER },
                         onDiccionario = { pantalla = Pantalla.DICCIONARIO },
                         onPerfil = { pantalla = Pantalla.PERFIL },
-                        onCambiarLengua = { pantalla = Pantalla.SELECCION_LENGUA }
+                        onCambiarLengua = { pantalla = Pantalla.SELECCION_LENGUA },
+                        fotoContent = fotoContent ?: { modifier ->
+                            Box(modifier = modifier.background(com.example.raicesvivas.theme.Verde, CircleShape), contentAlignment = Alignment.Center) {
+                                Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 20.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = androidx.compose.ui.graphics.Color.White)
+                            }
+                        }
                     )
                     Pantalla.APRENDER -> AprenderScreen(
                         lengua = lenguaSeleccionada,
@@ -150,7 +161,13 @@ fun App(
                                 onVolver = { pantalla = Pantalla.HOME },
                                 onCerrarSesion = { sesion = null; pantalla = Pantalla.LOGIN; onCerrarSesion?.invoke() },
                                 onCambiarFoto = { onSolicitarFoto?.invoke() },
-                                onLogros = { pantalla = Pantalla.LOGROS }
+                                onLogros = { pantalla = Pantalla.LOGROS },
+                                fotoUrl = fotoUrl,
+                                fotoContent = fotoContent ?: { modifier ->
+                                    Box(modifier = modifier.background(com.example.raicesvivas.theme.Verde, CircleShape), contentAlignment = Alignment.Center) {
+                                        Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 40.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = androidx.compose.ui.graphics.Color.White)
+                                    }
+                                }
                             )
                         }
                     }
