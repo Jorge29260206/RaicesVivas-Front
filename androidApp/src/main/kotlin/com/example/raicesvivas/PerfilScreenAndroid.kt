@@ -1,4 +1,4 @@
-﻿package com.example.raicesvivas
+package com.example.raicesvivas
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,7 +23,8 @@ fun PerfilScreenAndroid(
     fotoUrl: String?,
     onVolver: () -> Unit,
     onCerrarSesion: () -> Unit,
-    onCambiarFoto: () -> Unit
+    onCambiarFoto: () -> Unit,
+    onLogros: () -> Unit = {}
 ) {
     val context = LocalContext.current
     PerfilScreen(
@@ -31,6 +32,7 @@ fun PerfilScreenAndroid(
         onVolver = onVolver,
         onCerrarSesion = onCerrarSesion,
         onCambiarFoto = onCambiarFoto,
+        onLogros = onLogros,
         fotoUrl = fotoUrl,
         fotoContent = { modifier ->
             if (!fotoUrl.isNullOrEmpty()) {

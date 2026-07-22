@@ -27,7 +27,12 @@ fun HomeScreen(
     onAprender: () -> Unit,
     onDiccionario: () -> Unit,
     onPerfil: () -> Unit,
-    onCambiarLengua: () -> Unit
+    onCambiarLengua: () -> Unit,
+    fotoContent: @Composable (Modifier) -> Unit = { modifier ->
+        Box(modifier = modifier.background(Verde, CircleShape), contentAlignment = Alignment.Center) {
+            Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        }
+    }
 ) {
     val mascota = remember { MascotaHelper.mascotaAleatoria() }
     val mensajeMascota = remember { MascotaHelper.mensajeBienvenida(sesion?.nombreUsuario ?: "amigo") }
@@ -35,16 +40,14 @@ fun HomeScreen(
     Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
-                Spacer(Modifier.height(48.dp))
+                Spacer(Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column {
                         Text("Hola, ${sesion?.nombreUsuario ?: "amigo"}!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
                         Text("Que bueno verte de nuevo", fontSize = 14.sp, color = GrisSuave)
                     }
                     IconButton(onClick = onPerfil) {
-                        Box(Modifier.size(44.dp).background(Verde, CircleShape), contentAlignment = Alignment.Center) {
-                            Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        }
+                        fotoContent(Modifier.size(44.dp).clip(CircleShape))
                     }
                 }
                 Spacer(Modifier.height(16.dp))

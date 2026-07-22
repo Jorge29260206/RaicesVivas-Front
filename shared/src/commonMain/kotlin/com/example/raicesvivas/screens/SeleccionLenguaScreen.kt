@@ -1,4 +1,4 @@
-﻿package com.example.raicesvivas.screens
+package com.example.raicesvivas.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,6 +22,7 @@ import com.example.raicesvivas.utils.RegionHelper
 
 @Composable
 fun SeleccionLenguaScreen(
+    onVerMapa: (() -> Unit)? = null,
     onLenguaSeleccionada: (LenguaDto) -> Unit,
     onVolver: () -> Unit,
     sugerenciaGPS: RegionHelper.SugerenciaGPS? = null
@@ -131,6 +132,20 @@ fun SeleccionLenguaScreen(
                                     fontSize = 13.sp,
                                     color = CafeTierra
                                 )
+                                if (onVerMapa != null) {
+                                    Spacer(Modifier.height(6.dp))
+                                    TextButton(
+                                        onClick = onVerMapa,
+                                        contentPadding = PaddingValues(0.dp)
+                                    ) {
+                                        Text(
+                                            "🗺️ Abrir mapa interactivo",
+                                            fontSize = 12.sp,
+                                            color = Verde,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             } else {
                                 Text(
                                     "Ubicacion no detectada",
@@ -165,7 +180,7 @@ fun SeleccionLenguaScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("🔍", fontSize = 40.sp)
                             Spacer(Modifier.height(8.dp))
-                            Text("No se encontro \"\"",
+                            Text("No se encontro \"$busqueda\"",
                                 color = GrisSuave, fontSize = 14.sp,
                                 textAlign = TextAlign.Center)
                         }
@@ -238,7 +253,7 @@ fun SeleccionLenguaScreen(
                                 )
                             }
                         }
-                        Text("->", color = Verde, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text("→", color = Verde, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

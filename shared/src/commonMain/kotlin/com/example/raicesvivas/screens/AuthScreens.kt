@@ -123,7 +123,7 @@ fun LoginScreen(onCrearCuenta: () -> Unit, onEntrar: () -> Unit) {
 
 @Composable
 fun TopBarConRegreso(titulo: String, onVolver: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth().padding(top = 40.dp, bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
         TextButton(onClick = onVolver) { Text("←", fontSize = 20.sp, color = CafeTierra) }
         Spacer(Modifier.width(8.dp))
         Text(titulo, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CafeTierra)

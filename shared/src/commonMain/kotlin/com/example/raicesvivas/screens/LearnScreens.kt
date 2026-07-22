@@ -51,9 +51,9 @@ fun AprenderScreen(lengua: LenguaDto?, onNivelSeleccionado: (NivelDto) -> Unit, 
             }
             items(niveles) { nivel ->
                 val colores = listOf(Verde, Turquesa, Terracota)
-                val emojis = listOf("ÃƒÂ°Ã…Â¸Ã…â€™Ã‚Â±", "ÃƒÂ°Ã…Â¸Ã…â€™Ã‚Â¿", "ÃƒÂ°Ã…Â¸Ã…â€™Ã‚Â³")
+                val emojis = listOf("🌱", "🌿", "🌳")
                 val color = colores.getOrElse(nivel.orden - 1) { Verde }
-                val emoji = emojis.getOrElse(nivel.orden - 1) { "ÃƒÂ°Ã…Â¸Ã…â€™Ã‚Â¿" }
+                val emoji = emojis.getOrElse(nivel.orden - 1) { "🌿" }
                 Card(onClick = { onNivelSeleccionado(nivel) }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = color)) {
                     Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(emoji, fontSize = 40.sp)
@@ -63,7 +63,7 @@ fun AprenderScreen(lengua: LenguaDto?, onNivelSeleccionado: (NivelDto) -> Unit, 
                             Text(nivel.nombre, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                             nivel.descripcion?.let { Text(it, fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f)) }
                         }
-                        Text("ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢", fontSize = 24.sp, color = Color.White)
+                        Text("→", fontSize = 24.sp, color = Color.White)
                     }
                 }
             }
@@ -94,7 +94,7 @@ fun LeccionesScreen(nivel: NivelDto?, onLeccionSeleccionada: (LeccionDto) -> Uni
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
                 TopBarConRegreso(nivel?.nombre ?: "Lecciones", onVolver)
-                Text("Elige una leccion para comenzar", fontSize = 14.sp, color = CafeTierra.copy(alpha = 0.7f))
+                Text("Elige una lección para comenzar", fontSize = 14.sp, color = CafeTierra.copy(alpha = 0.7f))
                 Spacer(Modifier.height(16.dp))
                 if (cargando) Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Verde) }
                 error?.let { Text(it, color = Terracota, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) }
@@ -110,7 +110,7 @@ fun LeccionesScreen(nivel: NivelDto?, onLeccionSeleccionada: (LeccionDto) -> Uni
                             Text(leccion.titulo, fontWeight = FontWeight.Bold, color = CafeTierra, fontSize = 16.sp)
                             leccion.descripcion?.let { Text(it, color = GrisSuave, fontSize = 13.sp) }
                         }
-                        Text("ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â¶", color = Verde, fontSize = 20.sp)
+                        Text("▶", color = Verde, fontSize = 20.sp)
                     }
                 }
             }
@@ -147,7 +147,7 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
     if (error != null) {
         Box(Modifier.fillMaxSize().background(BeigeCalido), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
-                Text("Sin conexion", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
+                Text("Sin conexión", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
                 Spacer(Modifier.height(8.dp))
                 Text(error ?: "", fontSize = 14.sp, color = Terracota, textAlign = TextAlign.Center)
                 Spacer(Modifier.height(24.dp))
@@ -180,14 +180,14 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
         Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
             Spacer(Modifier.height(40.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = onVolver) { Text("ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢", color = GrisSuave, fontSize = 20.sp) }
+                TextButton(onClick = onVolver) { Text("✕", color = GrisSuave, fontSize = 20.sp) }
                 Spacer(Modifier.width(8.dp))
                 LinearProgressIndicator(progress = { progreso }, modifier = Modifier.weight(1f).height(8.dp).clip(RoundedCornerShape(4.dp)), color = Verde, trackColor = GrisSuave.copy(alpha = 0.3f))
                 Spacer(Modifier.width(8.dp))
                 Text("${indiceActual + 1}/${palabras.size}", fontSize = 13.sp, color = GrisSuave)
             }
             Spacer(Modifier.height(32.dp))
-            Text("Ãƒâ€šÃ‚Â¿Que significa?", fontSize = 16.sp, color = GrisSuave)
+            Text("¿Qué significa?", fontSize = 16.sp, color = GrisSuave)
             Spacer(Modifier.height(16.dp))
             Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Verde.copy(alpha = 0.1f))) {
                 Column(modifier = Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -212,10 +212,10 @@ fun LeccionScreen(leccion: LeccionDto?, sesion: SesionUsuario?, onTerminar: (Int
                 val esCorrecta = respuestaSeleccionada == palabraActual?.traduccion
                 Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = if (esCorrecta) Verde.copy(alpha = 0.1f) else Terracota.copy(alpha = 0.1f))) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (esCorrecta) "ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“" else "ÃƒÂ¢Ã…â€œÃ¢â‚¬â€", fontSize = 24.sp, color = if (esCorrecta) Verde else Terracota, fontWeight = FontWeight.Bold)
+                        Text(if (esCorrecta) "✔" else "✖", fontSize = 24.sp, color = if (esCorrecta) Verde else Terracota, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text(if (esCorrecta) "Correcto!" else "Incorrecto", fontWeight = FontWeight.Bold, color = if (esCorrecta) Verde else Terracota)
+                            Text(if (esCorrecta) "¡Correcto!" else "Incorrecto", fontWeight = FontWeight.Bold, color = if (esCorrecta) Verde else Terracota)
                             if (!esCorrecta) Text("Respuesta: ${palabraActual?.traduccion}", fontSize = 13.sp, color = CafeTierra)
                         }
                     }
@@ -255,17 +255,17 @@ fun ResultadoScreen(puntuacion: Int, onContinuar: () -> Unit, onHome: () -> Unit
             Spacer(Modifier.height(16.dp))
             Text(mensaje, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CafeTierra, textAlign = TextAlign.Center)
             Spacer(Modifier.height(16.dp))
-            Text("Tu puntuacion", fontSize = 16.sp, color = GrisSuave)
+            Text("Tu puntuación", fontSize = 16.sp, color = GrisSuave)
             Spacer(Modifier.height(8.dp))
             Box(modifier = Modifier.size(120.dp).background(color.copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) {
                 Text("$puntuacion%", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = color)
             }
             Spacer(Modifier.height(48.dp))
-            Button(onClick = onContinuar, colors = ButtonDefaults.buttonColors(containerColor = Verde), shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            Button(onClick = onContinuar, colors = ButtonDefaults.buttonColors(containerColor = Verde), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(52.dp)) {
                 Text("Continuar", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(12.dp))
-            OutlinedButton(onClick = onHome, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(52.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = CafeTierra)) {
+            OutlinedButton(onClick = onHome, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(52.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = CafeTierra)) {
                 Text("Ir al inicio", fontSize = 16.sp)
             }
         }
@@ -313,7 +313,7 @@ fun DiccionarioScreen(lengua: LenguaDto?, onVolver: () -> Unit) {
                             palabra.ejemploUso?.let { Text(it, color = CafeTierra.copy(alpha = 0.6f), fontSize = 12.sp) }
                         }
                         Box(Modifier.size(40.dp).background(if (palabra.audioUrl != null) Verde.copy(alpha = 0.1f) else GrisSuave.copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) {
-                            Text(if (palabra.audioUrl != null) "ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ…Â " else "ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â", fontSize = 18.sp)
+                            Text(if (palabra.audioUrl != null) "🔊" else "📝", fontSize = 18.sp)
                         }
                     }
                 }

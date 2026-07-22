@@ -1,4 +1,4 @@
-﻿package com.example.raicesvivas.screens
+package com.example.raicesvivas.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +25,7 @@ fun PerfilScreen(
     onVolver: () -> Unit,
     onCerrarSesion: () -> Unit,
     onCambiarFoto: () -> Unit = {},
+    onLogros: () -> Unit = {},
     fotoUrl: String? = null,
     fotoContent: @Composable (Modifier) -> Unit = { modifier ->
         Box(modifier = modifier.background(Verde, CircleShape), contentAlignment = Alignment.Center) {
@@ -53,7 +54,7 @@ fun PerfilScreen(
                         }
                         Spacer(Modifier.height(8.dp))
                         Text(sesion?.nombreCompleto ?: "Usuario", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
-                        Text("@", fontSize = 14.sp, color = GrisSuave)
+                        Text("@${sesion?.nombreUsuario ?: ""}", fontSize = 14.sp, color = GrisSuave)
                         Text("Toca la foto para cambiarla", fontSize = 11.sp, color = GrisSuave.copy(alpha = 0.7f))
                     }
                 }
@@ -70,22 +71,35 @@ fun PerfilScreen(
                     }
                 }
                 Spacer(Modifier.height(24.dp))
-                listOf(Pair("🏆","Mis logros"), Pair("📊","Mi progreso"), Pair("⚙️","Configuracion"), Pair("❓","Ayuda")).forEach { (emoji, label) ->
-                    Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White), onClick = {}) {
-                        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(emoji, fontSize = 20.sp)
-                            Spacer(Modifier.width(16.dp))
-                            Text(label, fontSize = 16.sp, color = CafeTierra, modifier = Modifier.weight(1f))
-                            Text("->", color = GrisSuave, fontSize = 16.sp)
-                        }
-                    }
-                }
+                
+                PerfilItem("🏆", "Mis logros", onClick = onLogros)
+                PerfilItem("📊", "Mi progreso")
+                PerfilItem("⚙️", "Configuracion")
+                PerfilItem("❓", "Ayuda")
+                
                 Spacer(Modifier.height(24.dp))
                 Button(onClick = onCerrarSesion, colors = ButtonDefaults.buttonColors(containerColor = Terracota), shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth().height(52.dp)) {
                     Text("Cerrar sesion", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.height(32.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun PerfilItem(emoji: String, label: String, onClick: () -> Unit = {}) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        onClick = onClick
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(emoji, fontSize = 20.sp)
+            Spacer(Modifier.width(16.dp))
+            Text(label, fontSize = 16.sp, color = CafeTierra, modifier = Modifier.weight(1f))
+            Text("→", color = GrisSuave, fontSize = 16.sp)
         }
     }
 }

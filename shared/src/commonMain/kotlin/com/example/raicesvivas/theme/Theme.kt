@@ -12,6 +12,8 @@ val BeigeCalido = Color(0xFFFFFDF7)
 val BeigeMaiz = Color(0xFFF4E382)
 val CafeTierra = Color(0xFF6B4F3A)
 val GrisSuave = Color(0xFFD9D3C7)
+val Dorado = Color(0xFFD4A017)
+val GrisBloqueado = Color(0xFFB8B0A0)
 
 val RaicesColorScheme = lightColorScheme(
     primary = Verde,

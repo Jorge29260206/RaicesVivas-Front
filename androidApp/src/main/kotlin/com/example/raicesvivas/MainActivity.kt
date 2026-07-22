@@ -1,4 +1,4 @@
-﻿package com.example.raicesvivas
+package com.example.raicesvivas
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -6,8 +6,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -17,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -79,6 +82,16 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            ),
+            navigationBarStyle = SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
         super.onCreate(savedInstanceState)
         CloudinaryConfig.inicializar(this)
         NotificacionHelper.crearCanal(this)
@@ -207,13 +220,21 @@ class MainActivity : ComponentActivity() {
                         NotificacionHelper.cancelarRecordatorio(context)
                     }
                 },
-                perfilContent = { sesion, onVolver, onCerrarSesion, onCambiarFoto ->
+                mapaContent = { onLenguaSeleccionada, onVolver, lenguaActual ->
+                    MapaLenguasScreen(
+                        onLenguaSeleccionada = onLenguaSeleccionada,
+                        onVolver = onVolver,
+                        lenguaActual = lenguaActual
+                    )
+                },
+                perfilContent = { sesion, onVolver, onCerrarSesion, onCambiarFoto, onLogros ->
                     PerfilScreenAndroid(
                         sesion = sesion,
                         fotoUrl = fotoUrlActual,
                         onVolver = onVolver,
                         onCerrarSesion = onCerrarSesion,
-                        onCambiarFoto = onCambiarFoto
+                        onCambiarFoto = onCambiarFoto,
+                        onLogros = onLogros
                     )
                 }
             )

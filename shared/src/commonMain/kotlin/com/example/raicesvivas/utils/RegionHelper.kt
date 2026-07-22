@@ -1,4 +1,4 @@
-﻿package com.example.raicesvivas.utils
+package com.example.raicesvivas.utils
 
 object RegionHelper {
 
@@ -40,7 +40,7 @@ object RegionHelper {
             SugerenciaGPS(
                 estado = region.estado,
                 lenguaSugerida = region.lengua,
-                mensaje = "Segun tu ubicacion en , te sugerimos aprender ",
+                mensaje = "Segun tu ubicacion en ${region.estado}, te sugerimos aprender ${region.lengua}",
                 tienesSugerencia = true
             )
         } else {
