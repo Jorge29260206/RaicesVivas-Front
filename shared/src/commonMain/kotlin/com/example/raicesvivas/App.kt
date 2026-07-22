@@ -19,7 +19,7 @@ import com.example.raicesvivas.utils.RegionHelper
 enum class Pantalla {
     SPLASH, ONBOARDING, LOGIN, ENTRAR, REGISTRO,
     SELECCION_LENGUA, MAPA_LENGUAS, HOME, APRENDER, LECCIONES,
-    LECCION, RESULTADO, DICCIONARIO, PERFIL, LOGROS
+    LECCION, RESULTADO, DICCIONARIO, PERFIL, LOGROS, CONFIGURACION
 }
 
 @Composable
@@ -31,7 +31,7 @@ fun App(
     onCerrarSesion: (() -> Unit)? = null,
     fotoUrl: String? = null,
     fotoContent: (@Composable (Modifier) -> Unit)? = null,
-    perfilContent: (@Composable (SesionUsuario?, () -> Unit, () -> Unit, () -> Unit, () -> Unit) -> Unit)? = null,
+    perfilContent: (@Composable (SesionUsuario?, () -> Unit, () -> Unit, () -> Unit, () -> Unit, () -> Unit) -> Unit)? = null,
     mapaContent: (@Composable ((String) -> Unit, () -> Unit, String?) -> Unit)? = null
 ) {
     RaicesTheme {
@@ -146,6 +146,15 @@ fun App(
                     Pantalla.LOGROS -> LogrosScreen(
                         onVolver = { pantalla = Pantalla.PERFIL }
                     )
+                    Pantalla.CONFIGURACION -> ConfiguracionScreen(
+                        sesion = sesion,
+                        onVolver = { pantalla = Pantalla.PERFIL },
+                        onCerrarSesion = {
+                            sesion = null
+                            pantalla = Pantalla.LOGIN
+                            onCerrarSesion?.invoke()
+                        }
+                    )
                     Pantalla.PERFIL -> {
                         if (perfilContent != null) {
                             perfilContent(
@@ -153,7 +162,8 @@ fun App(
                                 { pantalla = Pantalla.HOME },
                                 { sesion = null; pantalla = Pantalla.LOGIN; onCerrarSesion?.invoke() },
                                 { onSolicitarFoto?.invoke() },
-                                { pantalla = Pantalla.LOGROS }
+                                { pantalla = Pantalla.LOGROS },
+                                { pantalla = Pantalla.CONFIGURACION }
                             )
                         } else {
                             PerfilScreen(
@@ -162,6 +172,7 @@ fun App(
                                 onCerrarSesion = { sesion = null; pantalla = Pantalla.LOGIN; onCerrarSesion?.invoke() },
                                 onCambiarFoto = { onSolicitarFoto?.invoke() },
                                 onLogros = { pantalla = Pantalla.LOGROS },
+                                onConfiguracion = { pantalla = Pantalla.CONFIGURACION },
                                 fotoUrl = fotoUrl,
                                 fotoContent = fotoContent ?: { modifier ->
                                     Box(modifier = modifier.background(com.example.raicesvivas.theme.Verde, CircleShape), contentAlignment = Alignment.Center) {

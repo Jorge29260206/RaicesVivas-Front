@@ -269,14 +269,15 @@ class MainActivity : ComponentActivity() {
                         lenguaActual = lenguaActual
                     )
                 },
-                perfilContent = { sesion, onVolver, onCerrarSesion, onCambiarFoto, onLogros ->
+                perfilContent = { sesion, onVolver, onCerrarSesion, onCambiarFoto, onLogros, onConfiguracion ->
                     PerfilScreenAndroid(
                         sesion = sesion,
                         fotoUrl = fotoUrlActual,
                         onVolver = onVolver,
                         onCerrarSesion = onCerrarSesion,
                         onCambiarFoto = onCambiarFoto,
-                        onLogros = onLogros
+                        onLogros = onLogros,
+                        onConfiguracion = onConfiguracion
                     )
                 }
             )

@@ -26,6 +26,7 @@ fun PerfilScreen(
     onCerrarSesion: () -> Unit,
     onCambiarFoto: () -> Unit = {},
     onLogros: () -> Unit = {},
+    onConfiguracion: () -> Unit = {},
     fotoUrl: String? = null,
     fotoContent: @Composable (Modifier) -> Unit = { modifier ->
         Box(modifier = modifier.background(Verde, CircleShape), contentAlignment = Alignment.Center) {
@@ -74,7 +75,7 @@ fun PerfilScreen(
                 
                 PerfilItem("🏆", "Mis logros", onClick = onLogros)
                 PerfilItem("📊", "Mi progreso")
-                PerfilItem("⚙️", "Configuracion")
+                PerfilItem("⚙️", "Configuracion", onClick = onConfiguracion)
                 PerfilItem("❓", "Ayuda")
                 
                 Spacer(Modifier.height(24.dp))
