@@ -34,7 +34,7 @@ fun PerfilScreen(
         }
     }
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
                 TopBarConRegreso("Mi Perfil", onVolver)
@@ -54,19 +54,19 @@ fun PerfilScreen(
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text(sesion?.nombreCompleto ?: "Usuario", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
-                        Text("@${sesion?.nombreUsuario ?: ""}", fontSize = 14.sp, color = GrisSuave)
-                        Text("Toca la foto para cambiarla", fontSize = 11.sp, color = GrisSuave.copy(alpha = 0.7f))
+                        Text(sesion?.nombreCompleto ?: "Usuario", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                        Text("@${sesion?.nombreUsuario ?: ""}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Toca la foto para cambiarla", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
                     }
                 }
                 Spacer(Modifier.height(24.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     listOf(Triple("7","Racha","🔥"), Triple("3","Lecciones","📚"), Triple("85%","Promedio","⭐")).forEach { (valor, label, emoji) ->
-                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                             Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(emoji, fontSize = 24.sp)
-                                Text(valor, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
-                                Text(label, fontSize = 11.sp, color = GrisSuave, textAlign = TextAlign.Center)
+                                Text(valor, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                                Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
                             }
                         }
                     }
@@ -93,14 +93,14 @@ private fun PerfilItem(emoji: String, label: String, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         onClick = onClick
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(emoji, fontSize = 20.sp)
             Spacer(Modifier.width(16.dp))
-            Text(label, fontSize = 16.sp, color = CafeTierra, modifier = Modifier.weight(1f))
-            Text("→", color = GrisSuave, fontSize = 16.sp)
+            Text(label, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+            Text("→", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp)
         }
     }
 }

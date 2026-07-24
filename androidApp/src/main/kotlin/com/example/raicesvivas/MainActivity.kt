@@ -1,10 +1,12 @@
 package com.example.raicesvivas
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -29,6 +31,10 @@ import androidx.core.content.FileProvider
 import com.example.raicesvivas.repository.RaicesRepository
 import com.example.raicesvivas.theme.*
 import com.example.raicesvivas.utils.RegionHelper
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,11 +55,44 @@ class MainActivity : ComponentActivity() {
         val concedido = (permisos[Manifest.permission.ACCESS_FINE_LOCATION] == true) ||
                 (permisos[Manifest.permission.ACCESS_COARSE_LOCATION] == true)
         if (concedido) {
-            obtenerUbicacionYSugerir()
+            verificarGPSEncendidoYObtener()
         }
     }
 
     private var onSugerenciaObtenida: ((RegionHelper.SugerenciaGPS) -> Unit)? = null
+
+    private val resolverGPSLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { resultado ->
+        if (resultado.resultCode == RESULT_OK) {
+            obtenerUbicacionYSugerir()
+        }
+    }
+
+    private fun verificarGPSEncendidoYObtener() {
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).build()
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(this)
+        val task = settingsClient.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+            obtenerUbicacionYSugerir()
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is com.google.android.gms.common.api.ResolvableApiException) {
+                try {
+                    val intentSenderRequest = androidx.activity.result.IntentSenderRequest.Builder(exception.resolution).build()
+                    resolverGPSLauncher.launch(intentSenderRequest)
+                } catch (sendEx: Exception) {
+                    // Error al intentar abrir el dialogo
+                }
+            } else {
+                // El GPS no se puede activar por software, mandamos a ajustes
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+        }
+    }
 
     private fun obtenerUbicacionYSugerir() {
         val geoManager = GeolocalizacionManager(this)
@@ -121,7 +160,7 @@ class MainActivity : ComponentActivity() {
                     context, Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
                 if (tienePermiso) {
-                    obtenerUbicacionYSugerir()
+                    verificarGPSEncendidoYObtener()
                 } else {
                     solicitarPermisoUbicacion.launch(arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -247,6 +286,19 @@ class MainActivity : ComponentActivity() {
                     }
                 },
                 onSolicitarFoto = { mostrarDialogoFoto = true },
+                onSolicitarGPS = {
+                    val tienePermiso = ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if (tienePermiso) {
+                        verificarGPSEncendidoYObtener()
+                    } else {
+                        solicitarPermisoUbicacion.launch(arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ))
+                    }
+                },
                 onLoginExitoso = { sesion ->
                     sesionActual = sesion
                     CoroutineScope(Dispatchers.IO).launch {

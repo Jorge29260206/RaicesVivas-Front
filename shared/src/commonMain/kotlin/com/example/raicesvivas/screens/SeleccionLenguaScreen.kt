@@ -25,7 +25,8 @@ fun SeleccionLenguaScreen(
     onVerMapa: (() -> Unit)? = null,
     onLenguaSeleccionada: (LenguaDto) -> Unit,
     onVolver: () -> Unit,
-    sugerenciaGPS: RegionHelper.SugerenciaGPS? = null
+    sugerenciaGPS: RegionHelper.SugerenciaGPS? = null,
+    onReintentarGPS: (() -> Unit)? = null
 ) {
     val repo = remember { RaicesRepository() }
     var lenguas by remember { mutableStateOf<List<LenguaDto>>(emptyList()) }
@@ -60,7 +61,7 @@ fun SeleccionLenguaScreen(
         it.region.contains(busqueda, ignoreCase = true)
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
                 TopBarConRegreso("Elige tu lengua", onVolver)
@@ -77,7 +78,7 @@ fun SeleccionLenguaScreen(
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Verde,
-                        unfocusedBorderColor = GrisSuave.copy(alpha = 0.5f)
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
                 )
                 Spacer(Modifier.height(12.dp))
@@ -90,7 +91,7 @@ fun SeleccionLenguaScreen(
                         containerColor = if (sugerenciaLocal?.tienesSugerencia == true)
                             Verde.copy(alpha = 0.12f)
                         else
-                            GrisSuave.copy(alpha = 0.15f)
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
                     )
                 ) {
                     Row(
@@ -107,18 +108,18 @@ fun SeleccionLenguaScreen(
                             Text("📍", fontSize = 28.sp)
                         }
                         Spacer(Modifier.width(12.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             if (buscandoGPS) {
                                 Text(
                                     "Obteniendo tu ubicacion...",
                                     fontSize = 13.sp,
-                                    color = GrisSuave,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
                                     "Detectando la lengua de tu region",
                                     fontSize = 12.sp,
-                                    color = GrisSuave.copy(alpha = 0.7f)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             } else if (sugerenciaLocal?.tienesSugerencia == true) {
                                 Text(
@@ -130,7 +131,7 @@ fun SeleccionLenguaScreen(
                                 Text(
                                     sugerenciaLocal?.mensaje ?: "",
                                     fontSize = 13.sp,
-                                    color = CafeTierra
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 if (onVerMapa != null) {
                                     Spacer(Modifier.height(6.dp))
@@ -150,14 +151,23 @@ fun SeleccionLenguaScreen(
                                 Text(
                                     "Ubicacion no detectada",
                                     fontSize = 13.sp,
-                                    color = GrisSuave,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
                                     "Elige la lengua que quieras aprender",
                                     fontSize = 12.sp,
-                                    color = GrisSuave.copy(alpha = 0.7f)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                            }
+                        }
+                        
+                        if (!buscandoGPS && sugerenciaLocal?.tienesSugerencia != true && onReintentarGPS != null) {
+                            IconButton(onClick = {
+                                buscandoGPS = true
+                                onReintentarGPS()
+                            }) {
+                                Text("🔄", fontSize = 20.sp)
                             }
                         }
                     }
@@ -181,7 +191,7 @@ fun SeleccionLenguaScreen(
                             Text("🔍", fontSize = 40.sp)
                             Spacer(Modifier.height(8.dp))
                             Text("No se encontro \"$busqueda\"",
-                                color = GrisSuave, fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp,
                                 textAlign = TextAlign.Center)
                         }
                     }
@@ -198,7 +208,7 @@ fun SeleccionLenguaScreen(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (esSugerida) Verde.copy(alpha = 0.12f) else Color.White
+                        containerColor = if (esSugerida) Verde.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface
                     ),
                     border = if (esSugerida) CardDefaults.outlinedCardBorder() else null
                 ) {
@@ -225,7 +235,7 @@ fun SeleccionLenguaScreen(
                                 Text(
                                     lengua.nombre,
                                     fontWeight = FontWeight.Bold,
-                                    color = CafeTierra,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 16.sp
                                 )
                                 if (esSugerida) {
@@ -243,11 +253,11 @@ fun SeleccionLenguaScreen(
                                     }
                                 }
                             }
-                            Text(lengua.region, color = GrisSuave, fontSize = 13.sp)
+                            Text(lengua.region, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
                             lengua.descripcion?.let {
                                 Text(
                                     it,
-                                    color = CafeTierra.copy(alpha = 0.6f),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                                     fontSize = 11.sp,
                                     maxLines = 1
                                 )

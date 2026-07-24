@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,9 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import com.example.raicesvivas.models.*
 import com.example.raicesvivas.screens.*
-import com.example.raicesvivas.theme.BeigeCalido
 import com.example.raicesvivas.theme.RaicesTheme
 import com.example.raicesvivas.utils.RegionHelper
+import com.example.raicesvivas.utils.BackHandler
 
 enum class Pantalla {
     SPLASH, ONBOARDING, LOGIN, ENTRAR, REGISTRO,
@@ -27,6 +28,7 @@ fun App(
     sesionInicial: SesionUsuario? = null,
     sugerenciaGPS: RegionHelper.SugerenciaGPS? = null,
     onSolicitarFoto: (() -> Unit)? = null,
+    onSolicitarGPS: (() -> Unit)? = null,
     onLoginExitoso: ((SesionUsuario) -> Unit)? = null,
     onCerrarSesion: (() -> Unit)? = null,
     fotoUrl: String? = null,
@@ -34,55 +36,83 @@ fun App(
     perfilContent: (@Composable (SesionUsuario?, () -> Unit, () -> Unit, () -> Unit, () -> Unit, () -> Unit) -> Unit)? = null,
     mapaContent: (@Composable ((String) -> Unit, () -> Unit, String?) -> Unit)? = null
 ) {
-    RaicesTheme {
-        var pantalla by remember { mutableStateOf(if (sesionInicial != null) Pantalla.HOME else Pantalla.SPLASH) }
-        var onboardingVisto by remember { mutableStateOf(sesionInicial != null) }
-        var sesion by remember { mutableStateOf<SesionUsuario?>(sesionInicial) }
+    var isDarkTheme by remember { mutableStateOf(false) }
+    
+    RaicesTheme(darkTheme = isDarkTheme) {
+        val stack = remember { mutableStateListOf<Pantalla>(if (sesionInicial != null) Pantalla.HOME else Pantalla.SPLASH) }
+        val pantallaActual = stack.last()
+
+        var sesion by remember { mutableStateOf(sesionInicial) }
         var lenguaSeleccionada by remember { mutableStateOf<LenguaDto?>(null) }
         var nivelSeleccionado by remember { mutableStateOf<NivelDto?>(null) }
         var leccionSeleccionada by remember { mutableStateOf<LeccionDto?>(null) }
         var puntuacionFinal by remember { mutableStateOf(0) }
 
-        if (sesionInicial == null) {
-            LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(2000)
-                pantalla = if (!onboardingVisto) Pantalla.ONBOARDING else Pantalla.LOGIN
+        // Función para navegar hacia adelante
+        val navegar: (Pantalla) -> Unit = { nuevaPantalla ->
+            stack.add(nuevaPantalla)
+        }
+
+        // Función para volver atrás
+        val volver: () -> Unit = {
+            if (stack.size > 1) {
+                stack.removeAt(stack.size - 1)
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
+        // Manejador de gesto atrás nativo
+        BackHandler(enabled = stack.size > 1) {
+            volver()
+        }
+
+        if (sesionInicial == null && stack.size == 1 && stack.first() == Pantalla.SPLASH) {
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(2000)
+                stack.clear()
+                stack.add(Pantalla.ONBOARDING)
+            }
+        }
+
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-                when (pantalla) {
+                when (pantallaActual) {
                     Pantalla.SPLASH -> SplashScreen()
                     Pantalla.ONBOARDING -> OnboardingScreen {
-                        onboardingVisto = true
-                        pantalla = Pantalla.LOGIN
+                        stack.clear()
+                        stack.add(Pantalla.LOGIN)
                     }
                     Pantalla.LOGIN -> LoginScreen(
-                        onCrearCuenta = { pantalla = Pantalla.REGISTRO },
-                        onEntrar = { pantalla = Pantalla.ENTRAR }
+                        onCrearCuenta = { navegar(Pantalla.REGISTRO) },
+                        onEntrar = { navegar(Pantalla.ENTRAR) }
                     )
                     Pantalla.ENTRAR -> EntrarScreen(
                         onLoginExitoso = { s ->
                             sesion = s
-                            pantalla = Pantalla.HOME
+                            stack.clear()
+                            stack.add(Pantalla.HOME)
                             onLoginExitoso?.invoke(s)
                         },
-                        onVolver = { pantalla = Pantalla.LOGIN }
+                        onVolver = { volver() }
                     )
                     Pantalla.REGISTRO -> RegistroScreen(
                         onRegistrado = { s ->
                             sesion = s
-                            pantalla = Pantalla.SELECCION_LENGUA
+                            stack.clear()
+                            stack.add(Pantalla.SELECCION_LENGUA)
                             onLoginExitoso?.invoke(s)
                         },
-                        onVolver = { pantalla = Pantalla.LOGIN }
+                        onVolver = { volver() }
                     )
                     Pantalla.SELECCION_LENGUA -> SeleccionLenguaScreen(
-                        onLenguaSeleccionada = { l -> lenguaSeleccionada = l; pantalla = Pantalla.HOME },
-                        onVolver = { pantalla = if (sesion != null) Pantalla.HOME else Pantalla.LOGIN },
+                        onLenguaSeleccionada = { l -> 
+                            lenguaSeleccionada = l
+                            stack.clear()
+                            stack.add(Pantalla.HOME)
+                        },
+                        onVolver = { if (sesion != null) volver() else { stack.clear(); stack.add(Pantalla.LOGIN) } },
                         sugerenciaGPS = sugerenciaGPS,
-                        onVerMapa = { pantalla = Pantalla.MAPA_LENGUAS }
+                        onVerMapa = { navegar(Pantalla.MAPA_LENGUAS) },
+                        onReintentarGPS = { onSolicitarGPS?.invoke() }
                     )
                     Pantalla.MAPA_LENGUAS -> {
                         if (mapaContent != null) {
@@ -96,22 +126,23 @@ fun App(
                                         activa = true
                                     )
                                     lenguaSeleccionada = lengua
-                                    pantalla = Pantalla.HOME
+                                    stack.clear()
+                                    stack.add(Pantalla.HOME)
                                 },
-                                { pantalla = Pantalla.SELECCION_LENGUA },
+                                { volver() },
                                 lenguaSeleccionada?.nombre
                             )
                         } else {
-                            pantalla = Pantalla.SELECCION_LENGUA
+                            volver()
                         }
                     }
                     Pantalla.HOME -> HomeScreen(
                         sesion = sesion,
                         lenguaActual = lenguaSeleccionada,
-                        onAprender = { pantalla = Pantalla.APRENDER },
-                        onDiccionario = { pantalla = Pantalla.DICCIONARIO },
-                        onPerfil = { pantalla = Pantalla.PERFIL },
-                        onCambiarLengua = { pantalla = Pantalla.SELECCION_LENGUA },
+                        onAprender = { navegar(Pantalla.APRENDER) },
+                        onDiccionario = { navegar(Pantalla.DICCIONARIO) },
+                        onPerfil = { navegar(Pantalla.PERFIL) },
+                        onCambiarLengua = { navegar(Pantalla.SELECCION_LENGUA) },
                         fotoContent = fotoContent ?: { modifier ->
                             Box(modifier = modifier.background(com.example.raicesvivas.theme.Verde, CircleShape), contentAlignment = Alignment.Center) {
                                 Text(sesion?.nombreUsuario?.firstOrNull()?.uppercase() ?: "U", fontSize = 20.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = androidx.compose.ui.graphics.Color.White)
@@ -120,38 +151,41 @@ fun App(
                     )
                     Pantalla.APRENDER -> AprenderScreen(
                         lengua = lenguaSeleccionada,
-                        onNivelSeleccionado = { n -> nivelSeleccionado = n; pantalla = Pantalla.LECCIONES },
-                        onVolver = { pantalla = Pantalla.HOME }
+                        onNivelSeleccionado = { n -> nivelSeleccionado = n; navegar(Pantalla.LECCIONES) },
+                        onVolver = { volver() }
                     )
                     Pantalla.LECCIONES -> LeccionesScreen(
                         nivel = nivelSeleccionado,
-                        onLeccionSeleccionada = { l -> leccionSeleccionada = l; pantalla = Pantalla.LECCION },
-                        onVolver = { pantalla = Pantalla.APRENDER }
+                        onLeccionSeleccionada = { l -> leccionSeleccionada = l; navegar(Pantalla.LECCION) },
+                        onVolver = { volver() }
                     )
                     Pantalla.LECCION -> LeccionScreen(
                         leccion = leccionSeleccionada,
                         sesion = sesion,
-                        onTerminar = { p -> puntuacionFinal = p; pantalla = Pantalla.RESULTADO },
-                        onVolver = { pantalla = Pantalla.LECCIONES }
+                        onTerminar = { p -> puntuacionFinal = p; stack.removeAt(stack.size - 1); navegar(Pantalla.RESULTADO) },
+                        onVolver = { volver() }
                     )
                     Pantalla.RESULTADO -> ResultadoScreen(
                         puntuacion = puntuacionFinal,
-                        onContinuar = { pantalla = Pantalla.LECCIONES },
-                        onHome = { pantalla = Pantalla.HOME }
+                        onContinuar = { volver() },
+                        onHome = { stack.clear(); stack.add(Pantalla.HOME) }
                     )
                     Pantalla.DICCIONARIO -> DiccionarioScreen(
                         lengua = lenguaSeleccionada,
-                        onVolver = { pantalla = Pantalla.HOME }
+                        onVolver = { volver() }
                     )
                     Pantalla.LOGROS -> LogrosScreen(
-                        onVolver = { pantalla = Pantalla.PERFIL }
+                        onVolver = { volver() }
                     )
                     Pantalla.CONFIGURACION -> ConfiguracionScreen(
                         sesion = sesion,
-                        onVolver = { pantalla = Pantalla.PERFIL },
+                        isDarkTheme = isDarkTheme,
+                        onThemeChange = { isDarkTheme = it },
+                        onVolver = { volver() },
                         onCerrarSesion = {
                             sesion = null
-                            pantalla = Pantalla.LOGIN
+                            stack.clear()
+                            stack.add(Pantalla.LOGIN)
                             onCerrarSesion?.invoke()
                         }
                     )
@@ -159,20 +193,30 @@ fun App(
                         if (perfilContent != null) {
                             perfilContent(
                                 sesion,
-                                { pantalla = Pantalla.HOME },
-                                { sesion = null; pantalla = Pantalla.LOGIN; onCerrarSesion?.invoke() },
+                                { volver() },
+                                { 
+                                    sesion = null
+                                    stack.clear()
+                                    stack.add(Pantalla.LOGIN)
+                                    onCerrarSesion?.invoke() 
+                                },
                                 { onSolicitarFoto?.invoke() },
-                                { pantalla = Pantalla.LOGROS },
-                                { pantalla = Pantalla.CONFIGURACION }
+                                { navegar(Pantalla.LOGROS) },
+                                { navegar(Pantalla.CONFIGURACION) }
                             )
                         } else {
                             PerfilScreen(
                                 sesion = sesion,
-                                onVolver = { pantalla = Pantalla.HOME },
-                                onCerrarSesion = { sesion = null; pantalla = Pantalla.LOGIN; onCerrarSesion?.invoke() },
+                                onVolver = { volver() },
+                                onCerrarSesion = { 
+                                    sesion = null
+                                    stack.clear()
+                                    stack.add(Pantalla.LOGIN)
+                                    onCerrarSesion?.invoke() 
+                                },
                                 onCambiarFoto = { onSolicitarFoto?.invoke() },
-                                onLogros = { pantalla = Pantalla.LOGROS },
-                                onConfiguracion = { pantalla = Pantalla.CONFIGURACION },
+                                onLogros = { navegar(Pantalla.LOGROS) },
+                                onConfiguracion = { navegar(Pantalla.CONFIGURACION) },
                                 fotoUrl = fotoUrl,
                                 fotoContent = fotoContent ?: { modifier ->
                                     Box(modifier = modifier.background(com.example.raicesvivas.theme.Verde, CircleShape), contentAlignment = Alignment.Center) {

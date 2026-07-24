@@ -38,14 +38,14 @@ fun HomeScreen(
     val mascota = remember { MascotaHelper.mascotaAleatoria() }
     val mensajeMascota = remember { MascotaHelper.mensajeBienvenida(sesion?.nombreUsuario ?: "amigo") }
 
-    Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
                 Spacer(Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column {
-                        Text("Hola, ${sesion?.nombreUsuario ?: "amigo"}!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
-                        Text("Que bueno verte de nuevo", fontSize = 14.sp, color = GrisSuave)
+                        Text("Hola, ${sesion?.nombreUsuario ?: "amigo"}!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                        Text("Que bueno verte de nuevo", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = onPerfil) {
                         fotoContent(Modifier.size(44.dp).clip(CircleShape))
@@ -63,8 +63,8 @@ fun HomeScreen(
                         }
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text("Xolo dice:", fontSize = 12.sp, color = GrisSuave)
-                            Text(mensajeMascota, fontSize = 14.sp, color = CafeTierra, fontWeight = FontWeight.Medium)
+                            Text("Xolo dice:", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(mensajeMascota, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -72,13 +72,13 @@ fun HomeScreen(
 
                 // Lengua actual
                 lenguaActual?.let {
-                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text("🌿", fontSize = 28.sp)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
-                                Text("Aprendiendo", fontSize = 12.sp, color = GrisSuave)
-                                Text(it.nombre, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
+                                Text("Aprendiendo", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(it.nombre, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                             }
                             TextButton(onClick = onCambiarLengua) { Text("Cambiar", color = Turquesa, fontSize = 12.sp) }
                         }
@@ -87,7 +87,7 @@ fun HomeScreen(
                 }
 
                 // Botones principales
-                Text("Que quieres hacer?", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = CafeTierra)
+                Text("Que quieres hacer?", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Card(onClick = onAprender, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Verde)) {
@@ -125,7 +125,7 @@ fun HomeScreen(
                 Spacer(Modifier.height(32.dp))
             }
         }
-        NavigationBar(containerColor = Color.White, modifier = Modifier.align(Alignment.BottomCenter)) {
+        NavigationBar(containerColor = MaterialTheme.colorScheme.surface, modifier = Modifier.align(Alignment.BottomCenter)) {
             NavigationBarItem(selected = true, onClick = {}, icon = { Text("🏠", fontSize = 20.sp) }, label = { Text("Inicio", fontSize = 11.sp) })
             NavigationBarItem(selected = false, onClick = onAprender, icon = { Text("📚", fontSize = 20.sp) }, label = { Text("Aprender", fontSize = 11.sp) })
             NavigationBarItem(selected = false, onClick = onDiccionario, icon = { Text("🔍", fontSize = 20.sp) }, label = { Text("Diccionario", fontSize = 11.sp) })

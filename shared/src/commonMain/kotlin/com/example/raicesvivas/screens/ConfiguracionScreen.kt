@@ -18,15 +18,16 @@ import com.example.raicesvivas.theme.*
 @Composable
 fun ConfiguracionScreen(
     sesion: SesionUsuario?,
+    isDarkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit,
     onVolver: () -> Unit,
     onCerrarSesion: () -> Unit,
 ) {
     var notificacionesDiarias by remember { mutableStateOf(value = true) }
     var efectosSonido by remember { mutableStateOf(value = true) }
-    var modoOscuro by remember { mutableStateOf(value = false) }
     var metaDiaria by remember { mutableStateOf(value = "10 min") }
 
-    Box(modifier = Modifier.fillMaxSize().background(BeigeCalido)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
             item {
                 TopBarConRegreso("Configuración", onVolver)
@@ -37,7 +38,7 @@ fun ConfiguracionScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         ConfigInfoItem("Nombre de usuario", "@${sesion?.nombreUsuario ?: ""}")
@@ -53,7 +54,7 @@ fun ConfiguracionScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         ConfigSwitchItem("Notificaciones diarias", "Recordatorios de racha", notificacionesDiarias) { notificacionesDiarias = it }
@@ -71,10 +72,10 @@ fun ConfiguracionScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        ConfigSwitchItem("Modo oscuro", "Cansa menos la vista", modoOscuro) { modoOscuro = it }
+                        ConfigSwitchItem("Modo oscuro", "Cansa menos la vista", isDarkTheme, onThemeChange)
                         HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = GrisSuave.copy(alpha = 0.3f))
                         ConfigActionItem("Centro de ayuda", "Preguntas frecuentes") { }
                         HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = GrisSuave.copy(alpha = 0.3f))
